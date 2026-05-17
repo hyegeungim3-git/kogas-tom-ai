@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/kogas-genos-prototype/',
+  base: '/kogas-tom-ai/',
   server: {
     allowedHosts: ['.trycloudflare.com'],
   },

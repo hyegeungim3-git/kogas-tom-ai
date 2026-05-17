@@ -4904,6 +4904,551 @@ const ServiceHistory = ({onOpenChat}) => {
   );
 };
 
+// ==================== AI TOM (사용자 서비스 v2) ====================
+const TOM_CONVERSATIONS = [
+  {id:101,group:'today',pinned:true,title:'신규 프로젝트 온보딩 가이드',time:'방금 전',agent:'일반',preview:''},
+  {id:102,group:'today',pinned:false,title:'데이터 분석 결과 정리',time:'10분 전',agent:'데이터 분석'},
+  {id:103,group:'today',pinned:false,title:'2024년 4분기 보안 컴플라이언스 점검',time:'1시간 전',agent:'보안'},
+  {id:104,group:'today',pinned:false,title:'React 핸드북 차세대 Lighthouse 점수',time:'2시간 전',agent:'기술'},
+  {id:105,group:'today',pinned:false,title:'SSO 토큰 만료 일정',time:'3시간 전',agent:'보안'},
+  {id:106,group:'week',pinned:false,title:'Python Pandas 시계열 멀티에이전트 테스트',time:'어제',agent:'기술'},
+  {id:107,group:'week',pinned:false,title:'SSE 프로토콜 정리',time:'어제',agent:'기술'},
+  {id:108,group:'week',pinned:false,title:'사내 기술 컨퍼런스 일정과 발표 명단 정리',time:'2일 전',agent:'일반'},
+  {id:109,group:'week',pinned:false,title:'클라우드 인프라 보안 시 사례(IAM) 도큐 정리',time:'3일 전',agent:'보안'},
+  {id:110,group:'week',pinned:false,title:'결재 API 도큐먼트 정해 변경 분석 분석',time:'4일 전',agent:'기술'},
+  {id:111,group:'week',pinned:false,title:'Google OAuth 2.0 API 연동 절차 및 안...',time:'5일 전',agent:'기술'},
+  {id:112,group:'old',pinned:false,title:'JVM 정확 검토 요청',time:'1주 전',agent:'기술'},
+  {id:113,group:'old',pinned:false,title:'모델 변경 분석',time:'1주 전',agent:'데이터 분석'},
+  {id:114,group:'old',pinned:false,title:'API 연동 일정 협의 메모...',time:'2주 전',agent:'일반'},
+];
+
+const TOM_AGENTS = [
+  {id:'general',name:'일반 챗팅 업무 룬',desc:'사내 규정 가능, 기술 매뉴얼, 업무 지식에 대해 자유롭게 질문하세요.',color:'from-blue-500 to-indigo-600',badge:''},
+  {id:'safety',name:'안전 점검 어시스턴트',desc:'PSV, BOG, LNG 저장탱크 등 설비 안전 점검 절차 안내',color:'from-red-500 to-rose-600',badge:'필수'},
+  {id:'hr',name:'HR 도우미',desc:'연차, 복리후생, 인사 규정 관련 24시간 즉시 응답',color:'from-emerald-500 to-teal-600',badge:'인기'},
+  {id:'legal',name:'법무·계약 어시스턴트',desc:'계약서 검토, 리스크 조항 식별, 법령 검색',color:'from-purple-500 to-fuchsia-600',badge:''},
+  {id:'tech',name:'기술 매뉴얼 검색',desc:'설비 매뉴얼·도면·기술 사양 통합 검색',color:'from-cyan-500 to-blue-600',badge:''},
+  {id:'finance',name:'재무·예산 분석',desc:'예산 집행, 전표 작성, 회계 규정',color:'from-amber-500 to-orange-600',badge:''},
+  {id:'translate',name:'전문 번역',desc:'한↔영, 한↔일 기술 문서 번역 (용어집 자동 적용)',color:'from-pink-500 to-rose-500',badge:''},
+  {id:'edu',name:'기술 교육 튜터',desc:'신입사원/기술직 교육용 단계별 설명',color:'from-orange-500 to-yellow-600',badge:''},
+];
+
+const TOM_GENERAL_PROMPTS = [
+  {icon:Search,t:'지능형 질의-응답',desc:'최신 기술과 사내별 매뉴얼에 빠르게 답변',q:'PSV(안전밸브) 정기 점검 주기는 어떻게 되나요?'},
+  {icon:FileText,t:'문서 요약 및 번역',desc:'어떤 길이의 PDF/문서도 한번에 핵심 추출, 번역도 함께',q:'첨부한 영문 매뉴얼을 한국어로 요약·번역해줘'},
+  {icon:Link2,t:'ERP 연동',desc:'내 결재/업무 데이터를 ERP와 직접 호환',q:'이번 주 결재 대기 건과 미결 사항을 정리해줘'},
+  {icon:Languages,t:'기술 번역',desc:'LNG 등 산업 용어를 정확히 한↔영 번역',q:'다음 영문 기술 매뉴얼을 한국어로 번역해줘'},
+];
+
+const TOM_SAMPLE_RESPONSES = {
+  psv: {
+    type:'rag',
+    content:`**[RAG 기반 답변] — 출처: 평택기지_정비_지침.pdf**
+
+평택기지 유지보수 지침서(제2장)에 따르면,
+
+- **초저온 안전밸브(PSV)**: **1년 주기**로 분해 점검(Overhaul) 및 작동 시험(POP Test) 실시
+- **BOG 벤팅 밸브**: **3년 주기**로 정밀 진단 수행
+
+추가로 확인이 필요하시면 말씀해 주세요.`,
+    sources:[
+      {doc:'평택기지_정비_지침.pdf',page:4,similarity:95,excerpt:`[평택 LNG 생산기지 설비 유지보수 표준 지침]
+
+제2장 주요 설비별 정비 주기
+
+2.1 초저온 안전밸브 (PSV - Pressure Safety Valve)
+- 초저온 안전밸브(PSV)는 관계 법령 및 사내 규정에 따라 1년 주기로 분해 점검 (Overhaul) 및 작동 시험(POP Test)을 실시하여야 한다.
+- BOG 벤팅 밸브는 3년 주기로 정밀 진단을 수행한다.
+
+제3장 안전 유의사항
+
+3.1 작업 전 조치사항
+- LNG 저장탱크 상부는 -162°C의 초저온...`,highlights:['1년 주기로 분해 점검 (Overhaul)','작동 시험(POP Test)','3년 주기로 정밀 진단']},
+    ],
+  },
+  market: {
+    type:'table',
+    title:'"최근 기술전 임직원 만족경험 조사 시장 분석"',
+    subtitle:'(2024년 기준, 글로벌 & 한국 시장 중심)',
+    sectionTitle:'Executive Summary',
+    table:{
+      cols:['항목','내용'],
+      rows:[
+        ['시장 규모','2023년 전 세계 임직원 만족경험 조사(SG+HR Analytics) 시장 규모 ≈ USD 1.6B'],
+        ['CAGR (2024-2028)','12.4 % (한국 대비 10.1%에서 1.1배)'],
+        ['주요 성장 요인','- 하이브리드/원격 근무 확대 + 실시간 피드백 필요성 증가\n- AI/ML 기반 인사이트 도입\n- 기업 ESG/DEI 인덱스 통합 확대'],
+        ['주요 도전 과제','- 데이터 프라이버시/개인정보 보호 (GDPR 등)\n- 설문 피로감(낮은 응답률)\n- 종합 결과 데이터 통합 곤란'],
+        ['핵심 기회','- "Pulse Survey", "Micro-Survey" 서비스\n- HRIS, SAP/Workday/LinkedIn 등과의 API 연동\n- 한국 일/조직 문화 2.0세대(대화/매개) 신규 진출'],
+      ],
+    },
+  },
+  weekly: {
+    type:'report',
+    title:'주간 실적 보고서 초안 생성됨',
+    subtitle:'정비기술처 주간 업무 실적 보고',
+    steps:[
+      {label:'표준 양식 불러오기',sub:'주간실적 보고서 사내 표준 템플릿 로드 완료',ok:true},
+      {label:'정보 항목 매핑',sub:'입력 데이터를 자동 분류 완료',ok:true},
+      {label:'공유용 개조식 포맷팅',sub:'보고서 양식에 맞게 최종 작성 완료',ok:true},
+    ],
+    preview:`**[주간 실적 보고서 초안 생성됨]**
+**정비기술처 주간 업무 실적 보고**
+
+| 구분 | 내용 |
+|---|---|
+| **보고 기간** | 2026. 02. 17.(월) ~ 02. 21.(금) |
+| **작성 부서** | 정비기술처 |
+| **작성자** | 김인훈 과장 |
+
+**가. 주요 실적**
+1. 초저온 안전밸브(PSV) 정기 점검: **5건 완료**
+2. 배관 누설 탐지 처리: **2건 완료**
+
+**나. 차주 계획**
+- 6호기~10호기 PSV 정기 점검 예정
+
+⚠ AI 생성 초안입니다. 반드시 확인 후 사용하세요.`,
+    docTitle:'2026년 2월 4주차 주간 실적 보고',
+    docSubtitle:'2026. 02. 26.',
+  },
+  greeting: {
+    type:'plain',
+    content:`안녕하세요! 무엇을 도와드릴까요? 사내 규정·매뉴얼 검색, 문서 요약·번역, 보고서 작성, 데이터 분석 등 다양한 업무를 지원합니다.\n\n좌측 사이드바에서 "에이전트" 탭을 누르면 안전 점검, HR, 법무 등 전문 어시스턴트도 선택할 수 있어요.`,
+  },
+};
+
+const AITomChat = ({onSwitchToAdmin,onOpenMypage}) => {
+  const toast=useToast();
+  const [tab,setTab]=useState('general'); // 'general' | 'agent'
+  const [activeAgent,setActiveAgent]=useState(TOM_AGENTS[0]);
+  const [convs,setConvs]=useState(TOM_CONVERSATIONS);
+  const [activeConvId,setActiveConvId]=useState(null);
+  const [messages,setMessages]=useState([]);
+  const [input,setInput]=useState('');
+  const [sending,setSending]=useState(false);
+  const [tools,setTools]=useState({rag:true,smartAuto:true});
+  const [model,setModel]=useState('GPT-OSS');
+  const [showRefs,setShowRefs]=useState(true);
+  const [currentSources,setCurrentSources]=useState([]);
+  const [search,setSearch]=useState('');
+  const [favOpen,setFavOpen]=useState(true);
+  const [showModelMenu,setShowModelMenu]=useState(false);
+  const endRef=useRef(null);
+
+  useEffect(()=>{endRef.current?.scrollIntoView({behavior:'smooth'});},[messages,sending]);
+
+  const filtered=convs.filter(c=>!search||c.title.toLowerCase().includes(search.toLowerCase()));
+  const todayConvs=filtered.filter(c=>c.group==='today'&&!c.pinned);
+  const weekConvs=filtered.filter(c=>c.group==='week');
+  const oldConvs=filtered.filter(c=>c.group==='old');
+  const pinnedConvs=filtered.filter(c=>c.pinned);
+
+  const detectResponseType=(text)=>{
+    const lower=text.toLowerCase();
+    if(/psv|안전밸브|점검 주기|정비 지침|평택|bog/i.test(lower))return 'psv';
+    if(/시장|분석|규모|cagr|swot|impact|만족경험/i.test(lower))return 'market';
+    if(/보고서|실적|주간|요약하여 작성|보고|보고해줘|작성해줘/i.test(lower))return 'weekly';
+    return 'greeting';
+  };
+
+  const generate=(prompt,opts={})=>{
+    const text=(prompt||'').trim();
+    if(!text)return;
+    const userMsg={role:'user',content:text,time:'방금 전'};
+    setMessages(p=>[...p,userMsg]);
+    setInput('');
+    setSending(true);
+    setTimeout(()=>{
+      const kind=opts.kind||detectResponseType(text);
+      const resp=TOM_SAMPLE_RESPONSES[kind]||TOM_SAMPLE_RESPONSES.greeting;
+      const aiMsg={role:'assistant',time:'방금 전',data:resp};
+      setMessages(p=>[...p,aiMsg]);
+      if(resp.sources){setCurrentSources(resp.sources);setShowRefs(true);}
+      setSending(false);
+    },1200);
+  };
+
+  const send=()=>generate(input);
+
+  const loadConv=(c)=>{
+    setActiveConvId(c.id);
+    setMessages([{role:'user',content:c.title,time:'1시간 전'},{role:'assistant',time:'1시간 전',data:TOM_SAMPLE_RESPONSES.greeting}]);
+    setCurrentSources([]);
+  };
+
+  const newConv=()=>{
+    setActiveConvId(null);
+    setMessages([]);
+    setCurrentSources([]);
+    setShowRefs(true);
+  };
+
+  const togglePin=id=>{setConvs(p=>p.map(c=>c.id===id?{...c,pinned:!c.pinned}:c));toast('대화가 고정되었습니다','info');};
+  const delConv=id=>{setConvs(p=>p.filter(c=>c.id!==id));toast('대화가 삭제되었습니다','warning');};
+
+  // Render helpers
+  const renderMarkdown=(text)=>{
+    if(!text)return null;
+    return text.split('\n').map((line,i)=>{
+      if(line.startsWith('**')&&line.endsWith('**'))return <div key={i} className="font-bold my-1">{line.replace(/\*\*/g,'')}</div>;
+      if(line.startsWith('- '))return <div key={i} className="ml-3 flex items-start text-[13px]"><span className="mr-1.5 text-gray-400 shrink-0">•</span><span dangerouslySetInnerHTML={{__html:line.slice(2).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}}/></div>;
+      if(/^\d+\./.test(line))return <div key={i} className="ml-3 flex items-start text-[13px]"><span className="mr-1.5 text-gray-500 shrink-0 font-medium">{line.match(/^\d+/)[0]}.</span><span dangerouslySetInnerHTML={{__html:line.replace(/^\d+\.\s*/,'').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}}/></div>;
+      if(line.trim()==='')return <div key={i} className="h-2"/>;
+      return <div key={i} className="text-[13px] leading-relaxed" dangerouslySetInnerHTML={{__html:line.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}}/>;
+    });
+  };
+
+  const renderAssistant=(data)=>{
+    if(!data)return null;
+    if(data.type==='plain')return <div className="text-gray-800">{renderMarkdown(data.content)}</div>;
+    if(data.type==='rag')return <div className="text-gray-800">{renderMarkdown(data.content)}</div>;
+    if(data.type==='table')return (
+      <div>
+        <div className="flex items-center space-x-2 mb-1.5">
+          <div className="w-6 h-6 rounded bg-blue-50 flex items-center justify-center text-blue-600"><FileBarChart size={13}/></div>
+          <div className="font-bold text-[15px]">{data.title}</div>
+        </div>
+        <div className="text-xs text-gray-500 mb-3">{data.subtitle}</div>
+        <div className="flex items-center mb-2"><div className="w-1 h-4 bg-blue-500 rounded mr-1.5"/><div className="font-bold text-sm">{data.sectionTitle}</div></div>
+        <div className="border rounded-lg overflow-hidden">
+          <table className="w-full text-[13px]">
+            <thead className="bg-blue-50/70 text-blue-900"><tr>{data.table.cols.map((c,i)=>(<th key={i} className="px-3 py-2 text-left font-bold border-b">{c}</th>))}</tr></thead>
+            <tbody>{data.table.rows.map((r,i)=>(
+              <tr key={i} className={i%2===0?'bg-white':'bg-gray-50/40'}>
+                <td className="px-3 py-2 font-medium border-b align-top whitespace-nowrap">{r[0]}</td>
+                <td className="px-3 py-2 border-b align-top whitespace-pre-line">{r[1]}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+    );
+    if(data.type==='report')return (
+      <div>
+        <div className="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3 mb-3">
+          <div className="flex items-center space-x-1.5 mb-2"><CheckCircle size={14} className="text-emerald-600"/><div className="font-bold text-sm">{data.title}</div></div>
+          <div className="space-y-1.5">
+            {data.steps.map((s,i)=>(
+              <div key={i} className="flex items-start space-x-2">
+                <CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/>
+                <div><div className="text-[13px] font-medium">{s.label}</div><div className="text-[11px] text-gray-500">{s.sub}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white border rounded-lg p-4 text-[13px] mb-3 font-mono">{renderMarkdown(data.preview)}</div>
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
+          <div className="flex items-start space-x-3">
+            <div className="w-12 h-16 rounded bg-white border flex flex-col items-center justify-center shrink-0 shadow-sm"><FileText size={20} className="text-blue-600"/><span className="text-[8px] font-bold text-blue-600 mt-1">PDF</span></div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] text-blue-700 font-bold">한국가스기술공사</div>
+              <div className="font-bold text-sm mt-0.5">{data.docTitle}</div>
+              <div className="text-[11px] text-gray-500 mt-0.5">{data.docSubtitle}</div>
+              <div className="flex space-x-2 mt-3">
+                <button onClick={()=>toast('문서 미리보기를 엽니다','info')} className="px-3 py-1.5 border border-blue-300 text-blue-700 rounded-lg text-xs font-bold flex items-center hover:bg-blue-50"><Eye size={12} className="mr-1"/>문서 미리보기</button>
+                <button onClick={()=>toast('보고서가 다운로드됩니다')} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center hover:bg-emerald-600"><Download size={12} className="mr-1"/>다운로드</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+    return null;
+  };
+
+  const renderHighlighted=(text,highlights)=>{
+    if(!highlights||!highlights.length)return text;
+    let result=text;
+    return text.split('\n').map((line,i)=>{
+      let parts=[line];
+      highlights.forEach(h=>{
+        parts=parts.flatMap(p=>typeof p==='string'?p.split(h).flatMap((seg,j,arr)=>j<arr.length-1?[seg,{hl:h}]:[seg]):[p]);
+      });
+      return <div key={i} className="whitespace-pre-wrap">{parts.map((p,j)=>typeof p==='string'?<span key={j}>{p}</span>:<mark key={j} className="bg-yellow-200 text-gray-900 font-bold px-0.5 rounded">{p.hl}</mark>)}</div>;
+    });
+  };
+
+  return (
+    <div className="flex h-screen bg-[#F5F6F8] text-gray-800" style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
+      {/* === LEFT SIDEBAR === */}
+      <aside className="w-64 bg-white border-r flex flex-col shrink-0">
+        {/* Logo */}
+        <div className="px-4 py-3.5 border-b flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 via-indigo-600 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-md">AT</div>
+            <div>
+              <div className="text-[15px] font-extrabold tracking-tight leading-none">AI TOM</div>
+              <div className="text-[9px] text-gray-500 font-medium mt-0.5">사용자 모드</div>
+            </div>
+          </div>
+        </div>
+        {/* Tabs */}
+        <div className="px-3 pt-3 pb-2">
+          <div className="flex bg-gray-100 rounded-lg p-0.5">
+            {[['general','일반'],['agent','에이전트']].map(([k,l])=>(
+              <button key={k} onClick={()=>setTab(k)} className={`flex-1 px-2 py-1.5 rounded-md text-xs font-bold transition-all ${tab===k?'bg-white shadow-sm text-blue-700':'text-gray-500 hover:text-gray-700'}`}>{l}</button>
+            ))}
+          </div>
+        </div>
+        {/* Search + new */}
+        <div className="px-3 pb-2 space-y-2">
+          <div className="relative">
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="검색" className="w-full pl-7 pr-2 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white"/>
+            <Search size={11} className="absolute left-2 top-2 text-gray-400"/>
+          </div>
+          <button onClick={newConv} className="w-full py-1.5 border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-600 rounded-lg text-xs font-bold flex items-center justify-center"><Plus size={12} className="mr-1"/>새로 시작</button>
+        </div>
+
+        {/* Tab content */}
+        {tab==='general' ? (
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-2 pb-1">
+            {pinnedConvs.length>0 && <>
+              <div className="px-2 pt-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wide flex items-center"><Pin size={9} className="mr-1"/>고정</div>
+              {pinnedConvs.map(c=>(
+                <ConvItem key={c.id} conv={c} active={activeConvId===c.id} onClick={()=>loadConv(c)} onPin={togglePin} onDel={delConv}/>
+              ))}
+            </>}
+            {todayConvs.length>0 && <>
+              <div className="px-2 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wide">오늘</div>
+              {todayConvs.map(c=><ConvItem key={c.id} conv={c} active={activeConvId===c.id} onClick={()=>loadConv(c)} onPin={togglePin} onDel={delConv}/>)}
+            </>}
+            {weekConvs.length>0 && <>
+              <div className="px-2 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wide">최근 7일</div>
+              {weekConvs.map(c=><ConvItem key={c.id} conv={c} active={activeConvId===c.id} onClick={()=>loadConv(c)} onPin={togglePin} onDel={delConv}/>)}
+            </>}
+            {oldConvs.length>0 && <>
+              <div className="px-2 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wide">이전</div>
+              {oldConvs.map(c=><ConvItem key={c.id} conv={c} active={activeConvId===c.id} onClick={()=>loadConv(c)} onPin={togglePin} onDel={delConv}/>)}
+            </>}
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-2 pb-1">
+            <div className="px-2 pt-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wide">전문 에이전트</div>
+            {TOM_AGENTS.map(a=>(
+              <div key={a.id} onClick={()=>{setActiveAgent(a);setTab('general');newConv();toast(`'${a.name}' 으로 전환했습니다`);}} className={`mx-1 my-0.5 px-2 py-2 rounded-lg cursor-pointer text-xs ${activeAgent.id===a.id?'bg-blue-50 ring-1 ring-blue-200':'hover:bg-gray-50'}`}>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${a.color} flex items-center justify-center text-white shrink-0 shadow-sm`}><Bot size={13}/></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center space-x-1"><span className="font-bold truncate">{a.name}</span>{a.badge&&<span className="bg-blue-100 text-blue-700 text-[9px] font-bold px-1 py-0.5 rounded">{a.badge}</span>}</div>
+                    <div className="text-[10px] text-gray-500 line-clamp-1 mt-0.5">{a.desc}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Bottom shortcuts */}
+        <div className="px-2 py-2 border-t space-y-0.5 text-xs text-gray-600">
+          <div className="flex items-center px-2 py-1.5 hover:bg-gray-50 rounded-lg cursor-pointer"><Star size={12} className="mr-2 text-yellow-500"/>즐겨찾기</div>
+          <div className="flex items-center px-2 py-1.5 hover:bg-gray-50 rounded-lg cursor-pointer"><AlertCircle size={12} className="mr-2 text-gray-400"/>FAQ</div>
+        </div>
+
+        {/* User profile */}
+        <div className="px-3 py-2.5 border-t bg-gray-50/50">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">김</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-bold truncate">김인훈 과장</div>
+              <div className="text-[10px] text-gray-500 truncate">정비기술처</div>
+            </div>
+            <button onClick={onOpenMypage} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-white rounded" title="마이페이지"><UserCog size={13}/></button>
+          </div>
+          <button onClick={onSwitchToAdmin} className="w-full mt-2 px-2 py-1.5 bg-gray-800 hover:bg-gray-900 text-white rounded-lg text-[11px] font-bold flex items-center justify-center"><Settings size={11} className="mr-1"/>관리자 콘솔</button>
+        </div>
+      </aside>
+
+      {/* === MAIN === */}
+      <main className="flex-1 flex flex-col min-w-0 bg-white">
+        {/* Header */}
+        <header className="px-7 py-3.5 border-b shrink-0 bg-white">
+          <div className="flex items-center space-x-2 mb-0.5">
+            <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${activeAgent.color} flex items-center justify-center text-white`}><Bot size={12}/></div>
+            <h1 className="font-bold text-base">{activeAgent.name}</h1>
+          </div>
+          <p className="text-xs text-gray-500 ml-8">{activeAgent.desc}</p>
+        </header>
+
+        {/* Messages / Empty state */}
+        <div className="flex-1 overflow-y-auto bg-[#FAFBFC]">
+          {messages.length===0 ? (
+            <div className="h-full flex flex-col items-center justify-center px-8 py-10">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center text-white mb-4 shadow-lg">
+                <Sparkles size={22}/>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">안녕하세요, 사용자님</h2>
+              <p className="text-sm text-gray-500 mb-8">사내 규정 조회, 기술 매뉴얼 등 업무 자유롭게 지원합니다.</p>
+              <div className="grid grid-cols-2 gap-3 w-full max-w-2xl">
+                {TOM_GENERAL_PROMPTS.map((p,i)=>(
+                  <div key={i} onClick={()=>generate(p.q)} className="bg-white rounded-2xl border p-4 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all group">
+                    <div className="flex items-start space-x-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 group-hover:bg-blue-100 transition-colors"><p.icon size={16}/></div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-sm mb-1">{p.t}</div>
+                        <div className="text-[11px] text-gray-500 leading-relaxed line-clamp-2">{p.desc}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-4xl mx-auto py-6 px-8 space-y-5">
+              {messages.map((m,i)=>(
+                <div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}>
+                  {m.role==='assistant' && (
+                    <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${activeAgent.color} flex items-center justify-center text-white mr-3 mt-1 shrink-0`}><Bot size={13}/></div>
+                  )}
+                  {m.role==='user' ? (
+                    <div className="max-w-[75%] bg-blue-600 text-white rounded-2xl rounded-tr-md px-4 py-2.5 shadow-sm">
+                      <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.content}</div>
+                    </div>
+                  ) : (
+                    <div className="flex-1 max-w-[85%]">
+                      <div className="bg-white border rounded-2xl rounded-tl-md px-5 py-4 shadow-sm">
+                        {renderAssistant(m.data)}
+                      </div>
+                      <div className="flex items-center mt-1.5 px-1 space-x-0.5">
+                        <button onClick={()=>{navigator.clipboard?.writeText(JSON.stringify(m.data));toast('복사되었습니다');}} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Copy size={11}/></button>
+                        <button onClick={()=>toast('좋은 답변으로 평가했습니다')} className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded"><ThumbsUp size={11}/></button>
+                        <button onClick={()=>toast('피드백이 접수되었습니다','info')} className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"><ThumbsDown size={11}/></button>
+                        <button onClick={()=>toast('재생성 중...','info')} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><RotateCcw size={11}/></button>
+                        <button onClick={()=>toast('음성 재생','info')} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Volume2 size={11}/></button>
+                        <span className="text-[10px] text-gray-400 ml-auto">{m.time}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {sending && (
+                <div className="flex items-start">
+                  <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${activeAgent.color} flex items-center justify-center text-white mr-3 mt-1 shrink-0`}><Bot size={13}/></div>
+                  <div className="bg-white border rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-[11px] text-gray-500">답변 작성 중</span>
+                      <div className="flex space-x-1">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0s'}}/>
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0.2s'}}/>
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0.4s'}}/>
+                      </div>
+                      <button onClick={()=>setSending(false)} className="ml-2 text-[10px] text-red-500 hover:underline">중지</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={endRef}/>
+            </div>
+          )}
+        </div>
+
+        {/* Input bar */}
+        <div className="border-t bg-white px-6 py-3 shrink-0">
+          <div className="max-w-4xl mx-auto">
+            <div className="border-2 border-gray-200 rounded-2xl bg-white p-2.5 focus-within:border-blue-400 transition-colors">
+              <textarea value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send();}}} rows={1} placeholder="메시지를 입력하세요..." className="w-full px-2 py-1.5 text-sm outline-none resize-none max-h-32 placeholder:text-gray-400"/>
+              <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center space-x-1">
+                  <button onClick={()=>toast('파일 첨부 (데모)','info')} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg" title="파일 첨부"><Paperclip size={15}/></button>
+                  <button onClick={()=>toast('음성 입력 (데모)','info')} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg" title="음성 입력"><Mic size={15}/></button>
+                </div>
+                <div className="flex items-center space-x-1.5">
+                  <button onClick={()=>setTools(p=>({...p,rag:!p.rag}))} className={`flex items-center space-x-1 px-2 py-1 rounded-lg text-[11px] font-bold transition-colors ${tools.rag?'bg-blue-50 text-blue-700 ring-1 ring-blue-300':'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} title="RAG (사내 문서 참조)"><BookOpen size={10}/><span>RAG</span></button>
+                  <button onClick={()=>setTools(p=>({...p,smartAuto:!p.smartAuto}))} className={`flex items-center space-x-1 px-2 py-1 rounded-lg text-[11px] font-bold transition-colors ${tools.smartAuto?'bg-purple-50 text-purple-700 ring-1 ring-purple-300':'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} title="자동으로 적합한 도구 선택"><Sparkles size={10}/><span>Smart Auto</span></button>
+                  <div className="relative">
+                    <button onClick={()=>setShowModelMenu(v=>!v)} className="flex items-center space-x-1 px-2 py-1 rounded-lg text-[11px] font-bold bg-gray-50 text-gray-700 hover:bg-gray-100">
+                      <Cpu size={10}/><span>{model}</span><ChevronDown size={10}/>
+                    </button>
+                    {showModelMenu && (
+                      <div className="absolute bottom-full right-0 mb-1 bg-white border rounded-lg shadow-xl min-w-[140px] z-10">
+                        {['GPT-OSS','GPT-4o','Llama-3-Kor','EXAONE-3.0'].map(m=>(
+                          <div key={m} onClick={()=>{setModel(m);setShowModelMenu(false);}} className="px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs flex items-center justify-between">{m}{model===m&&<Check size={10} className="text-blue-600"/>}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={send} disabled={!input.trim()||sending} className={`p-2 rounded-xl transition-colors ${input.trim()&&!sending?'bg-blue-600 text-white hover:bg-blue-700':'bg-gray-100 text-gray-300'}`}>
+                    <ArrowUp size={15}/>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p className="text-[10px] text-gray-400 text-center mt-2">AI 답변에는 실수가 있을 수 있으니, 답변에 사용된 출처를 확인해 주세요.</p>
+          </div>
+        </div>
+      </main>
+
+      {/* === RIGHT SIDEBAR (참조 자료) === */}
+      {showRefs && (
+        <aside className="w-72 bg-white border-l flex flex-col shrink-0">
+          <div className="px-4 py-3.5 border-b flex items-center justify-between">
+            <h3 className="font-bold text-sm flex items-center"><BookOpen size={13} className="mr-1.5 text-blue-600"/>참조 자료</h3>
+            <button onClick={()=>setShowRefs(false)} className="p-1 text-gray-400 hover:bg-gray-100 rounded"><X size={14}/></button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            {currentSources.length===0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 py-12">
+                <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3"><FileText size={22} className="text-gray-300"/></div>
+                <div className="text-xs">참조 자료가 없습니다</div>
+                <div className="text-[10px] text-gray-300 mt-1">RAG를 켜고 질문하면 출처가 표시됩니다</div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {currentSources.map((s,i)=>(
+                  <div key={i} className="border rounded-xl overflow-hidden">
+                    <div className="px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                      <div className="flex items-center space-x-1.5 mb-1">
+                        <FileText size={12} className="text-blue-600 shrink-0"/>
+                        <span className="text-[11px] font-bold truncate">{s.doc}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-gray-500">p.{s.page}</span>
+                        <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold">유사도 {s.similarity}%</span>
+                      </div>
+                    </div>
+                    <div className="p-3 text-[11px] text-gray-700 leading-relaxed bg-gray-50/60 max-h-72 overflow-y-auto custom-scrollbar">
+                      {renderHighlighted(s.excerpt,s.highlights)}
+                    </div>
+                    <div className="px-3 py-2 border-t bg-white flex items-center space-x-2">
+                      <button onClick={()=>toast('문서 미리보기를 엽니다','info')} className="text-[10px] text-blue-600 hover:underline flex items-center"><Eye size={10} className="mr-0.5"/>미리보기</button>
+                      <span className="text-gray-300">·</span>
+                      <button onClick={()=>toast('다운로드합니다')} className="text-[10px] text-blue-600 hover:underline flex items-center"><Download size={10} className="mr-0.5"/>다운로드</button>
+                      <span className="ml-auto text-[9px] text-gray-400">원본 열기</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
+      )}
+
+      {/* Reopen refs button when collapsed */}
+      {!showRefs && (
+        <button onClick={()=>setShowRefs(true)} className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border border-r-0 rounded-l-lg px-1 py-3 shadow-md hover:bg-gray-50" title="참조 자료 열기">
+          <BookOpen size={14} className="text-gray-500"/>
+        </button>
+      )}
+    </div>
+  );
+};
+
+const ConvItem = ({conv,active,onClick,onPin,onDel}) => (
+  <div onClick={onClick} className={`group mx-1 my-0.5 px-2 py-1.5 rounded-lg cursor-pointer text-xs transition-colors ${active?'bg-blue-50 text-blue-700 font-medium':'hover:bg-gray-50 text-gray-700'}`}>
+    <div className="flex items-center">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center space-x-1">
+          {conv.pinned&&<Pin size={9} className="text-blue-500 shrink-0"/>}
+          <span className="truncate">{conv.title}</span>
+        </div>
+      </div>
+      <div className="hidden group-hover:flex items-center space-x-0.5 ml-1">
+        <button onClick={e=>{e.stopPropagation();onPin(conv.id);}} className="p-0.5 text-gray-400 hover:text-blue-600" title={conv.pinned?'고정 해제':'고정'}><Pin size={10}/></button>
+        <button onClick={e=>{e.stopPropagation();onDel(conv.id);}} className="p-0.5 text-gray-400 hover:text-red-600" title="삭제"><Trash2 size={10}/></button>
+      </div>
+    </div>
+  </div>
+);
+
 // ==================== SIDEBAR ====================
 const SidebarItem = ({item,activeId,onNav,level=0}) => {
   const isActive = activeId===item.id;
@@ -5059,66 +5604,62 @@ const App = () => {
     }
   };
 
+  const [showMypage,setShowMypage]=useState(false);
+
+  if (isService) {
+    return (
+      <ToastProvider>
+        <div style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
+          <AITomChat onSwitchToAdmin={()=>setViewMode('admin')} onOpenMypage={()=>setShowMypage(true)}/>
+          <Modal isOpen={showMypage} onClose={()=>setShowMypage(false)} title="마이페이지" size="xl">
+            <div className="-m-6"><UserPage/></div>
+          </Modal>
+        </div>
+      </ToastProvider>
+    );
+  }
+
   return (
     <ToastProvider>
     <div className="flex h-screen bg-gray-50 text-gray-800" style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
       {/* Sidebar */}
-      <div className={`${isService?'w-60 bg-white':'w-60 bg-white'} flex flex-col h-full border-r shrink-0`}>
+      <div className="w-60 bg-white flex flex-col h-full border-r shrink-0">
         <div className="p-5 pb-4 flex items-center justify-between border-b">
           <div className="flex items-center space-x-2.5">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm ${isService?'bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500':'bg-gradient-to-br from-blue-600 to-indigo-600'}`}>G</div>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm bg-gradient-to-br from-blue-600 to-indigo-600">G</div>
             <div>
               <div className="text-base font-extrabold tracking-tight leading-none">GenOS</div>
-              <div className="text-[9px] text-gray-400 font-medium mt-0.5">{isService?'AI 어시스턴트':'관리자 콘솔'}</div>
+              <div className="text-[9px] text-gray-400 font-medium mt-0.5">관리자 콘솔</div>
             </div>
           </div>
         </div>
-        {isService && (
-          <div className="px-3 pt-3">
-            <button onClick={()=>{setChatSeed({prompt:'',agent:null});setActiveId('svc.chat');}} className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center shadow-sm transition-all">
-              <Plus size={14} className="mr-1.5"/>새 대화 시작
-            </button>
-          </div>
-        )}
         <div className="flex-1 py-2 overflow-y-auto text-sm custom-scrollbar" style={{scrollbarWidth:'thin'}}>
-          {currentMenu.map(item=>
+          {adminMenu.map(item=>
             item.section ? <div key={item.id} className="px-5 pt-5 pb-1.5 text-[11px] font-bold text-gray-400 tracking-wider">{item.label}</div>
-            : <SidebarItem key={item.id} item={item} activeId={currentActiveId} onNav={currentSetActiveId}/>
+            : <SidebarItem key={item.id} item={item} activeId={adminActiveId} onNav={setAdminActiveId}/>
           )}
         </div>
-        {!isService && (
-          <div className="border-t">
-            <div onClick={()=>setAdminActiveId('user.page')} className={`mx-2 my-2 flex items-center space-x-2 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${adminActiveId==='user.page'?'bg-blue-50 text-blue-700 font-bold border-l-[3px] border-blue-600':'hover:bg-gray-50 text-gray-600'}`}>
-              <Monitor size={16} className={adminActiveId==='user.page'?'text-blue-600':'text-gray-400'}/><span>사용자 페이지</span>
-            </div>
+        <div className="border-t">
+          <div onClick={()=>setAdminActiveId('user.page')} className={`mx-2 my-2 flex items-center space-x-2 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${adminActiveId==='user.page'?'bg-blue-50 text-blue-700 font-bold border-l-[3px] border-blue-600':'hover:bg-gray-50 text-gray-600'}`}>
+            <Monitor size={16} className={adminActiveId==='user.page'?'text-blue-600':'text-gray-400'}/><span>사용자 페이지</span>
           </div>
-        )}
+        </div>
         <div className="p-3 border-t">
           <div className="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer mb-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-xs font-bold shadow-sm">김</div>
-            <div className="flex-1 min-w-0"><div className="text-sm font-bold truncate">김영빈·{isService?'사용자':'관리자'}</div><div className="text-xs text-gray-400 truncate">한국가스기술공사</div></div>
+            <div className="flex-1 min-w-0"><div className="text-sm font-bold truncate">김영빈·관리자</div><div className="text-xs text-gray-400 truncate">한국가스기술공사</div></div>
           </div>
-          <button onClick={switchMode} className={`w-full px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-center transition-all ${isService?'bg-gray-800 text-white hover:bg-gray-900':'border-2 border-blue-500 text-blue-600 hover:bg-blue-50'}`}>
-            {isService?<><Settings size={12} className="mr-1.5"/>관리자 콘솔로 전환</>:<><ArrowLeft size={12} className="mr-1.5"/>사용자 서비스로 돌아가기</>}
+          <button onClick={()=>setViewMode('service')} className="w-full px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-center transition-all border-2 border-blue-500 text-blue-600 hover:bg-blue-50">
+            <ArrowLeft size={12} className="mr-1.5"/>AI TOM 으로 돌아가기
           </button>
         </div>
       </div>
 
       {/* Main */}
       <main className="flex-1 overflow-hidden flex flex-col">
-        {/* Top bar */}
         <div className="h-14 bg-white border-b shadow-sm flex items-center justify-between px-6 shrink-0">
-          <div className="flex items-center space-x-3">
-            {isService && <span className="text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700 border border-indigo-100">🎨 사용자 서비스 모드</span>}
-            {!isService && <span className="text-xs font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-700 border">⚙️ 관리자 콘솔</span>}
-          </div>
+          <span className="text-xs font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-700 border">⚙️ 관리자 콘솔</span>
           <div className="flex items-center space-x-2">
-            {isService && (
-              <div className="relative max-w-md mr-3">
-                <input placeholder="전체 검색..." className="w-72 pl-9 pr-3 py-1.5 border rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"/>
-                <Search size={14} className="absolute left-3 top-2 text-gray-400"/>
-              </div>
-            )}
             <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Columns size={18}/></button>
             <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Settings size={18}/></button>
             <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg relative"><Bell size={18}/><span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"/></button>
@@ -5129,9 +5670,9 @@ const App = () => {
           </div>
         </div>
         <div className="flex-1 overflow-hidden bg-[#F8F9FA]">
-          {currentPages[currentActiveId] || (
+          {adminPages[adminActiveId] || (
             <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <Briefcase size={48} className="mb-4 text-gray-300"/><h3 className="text-lg font-medium">준비 중인 페이지입니다</h3><p className="text-sm mt-1 font-mono bg-gray-100 px-3 py-1 rounded">{currentActiveId}</p>
+              <Briefcase size={48} className="mb-4 text-gray-300"/><h3 className="text-lg font-medium">준비 중인 페이지입니다</h3><p className="text-sm mt-1 font-mono bg-gray-100 px-3 py-1 rounded">{adminActiveId}</p>
             </div>
           )}
         </div>
