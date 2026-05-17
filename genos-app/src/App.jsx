@@ -5274,11 +5274,11 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   const extColor=ext=>ext==='pdf'?'text-red-600 bg-red-50':ext==='docx'?'text-blue-600 bg-blue-50':ext==='xlsx'?'text-emerald-600 bg-emerald-50':'text-gray-600 bg-gray-100';
 
   return (
-    <div className="flex flex-col h-screen bg-[#EEF2F7] text-slate-900" style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
+    <div className="flex flex-col h-screen bg-white text-slate-900" style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
       {/* ============ TOP BAR (3-section unified) ============ */}
       <header className="h-16 flex bg-white border-b border-slate-200 shrink-0">
         {/* Logo block */}
-        <div className="w-64 flex items-center px-4 shrink-0">
+        <div className="w-64 flex items-center px-4 shrink-0 border-r border-slate-200">
           <div className="flex items-center space-x-2.5">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-300 via-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-sky-200/60">
               <span className="font-black text-[12px] tracking-tight">AI</span>
@@ -5303,7 +5303,7 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
           </div>
         </div>
         {/* Right header (above RAG panel) */}
-        <div className="w-80 flex items-center justify-between px-4 shrink-0">
+        <div className="w-80 flex items-center justify-between px-4 shrink-0 border-l border-slate-200">
           <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full ring-1 ring-emerald-200/60">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"/>
             <span className="text-[11px] font-bold">내부망 연결</span>
@@ -5317,9 +5317,9 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
       </header>
 
       {/* ============ BODY (3-column) ============ */}
-      <div className="flex-1 flex overflow-hidden gap-3 p-3 pt-0">
+      <div className="flex-1 flex overflow-hidden">
         {/* ----- LEFT SIDEBAR ----- */}
-        <aside className="w-64 bg-white rounded-2xl flex flex-col shrink-0 shadow-sm ring-1 ring-slate-200/70 overflow-hidden">
+        <aside className="w-64 bg-white flex flex-col shrink-0 border-r border-slate-200">
           {/* Tabs */}
           <div className="px-3 pt-3 pb-2">
             <div className="flex bg-slate-100 rounded-xl p-1">
@@ -5409,7 +5409,7 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
         </aside>
 
         {/* ----- CENTER MAIN ----- */}
-        <main className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/70 overflow-hidden">
+        <main className="flex-1 flex flex-col min-w-0 bg-white overflow-hidden">
           {/* Notice bar */}
           {showNotice && (
             <div className="bg-amber-50 border-b border-amber-200/70 px-6 py-2.5 flex items-center justify-between shrink-0">
@@ -5425,7 +5425,7 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
           )}
 
           {/* Messages / Empty state */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto bg-slate-50/40">
             {messages.length===0 ? (
               <div className="min-h-full flex flex-col items-center justify-center px-8 py-10">
                 <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center text-sky-500 mb-5 shadow-lg shadow-sky-100/80 ring-8 ring-sky-50">
@@ -5542,7 +5542,7 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
 
         {/* ----- RIGHT SIDEBAR (RAG) ----- */}
         {showRight && (
-          <aside className="w-80 bg-white rounded-2xl flex flex-col shrink-0 shadow-sm ring-1 ring-slate-200/70 overflow-hidden">
+          <aside className="w-80 bg-white flex flex-col shrink-0 border-l border-slate-200 overflow-hidden">
             {/* Header */}
             <div className="px-4 py-3 bg-white">
               <div className="flex items-center justify-between">
