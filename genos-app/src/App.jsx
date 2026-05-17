@@ -5128,6 +5128,110 @@ const KOGAS_NOTICE = {
   date:'2026-02-25',
 };
 
+// ---------- Report generation helpers (real, dynamic) ----------
+const REPORT_TYPE_META = {
+  weekly:  {title:'주간 실적 보고서', subtitle:'정비기술처 주간 업무 실적 보고', period:'주간',  formal:'주간 실적 보고'},
+  monthly: {title:'월간 운영 보고서', subtitle:'정비기술처 월간 운영 현황 보고', period:'월간',  formal:'월간 운영 보고'},
+  risk:    {title:'위험성 평가서',     subtitle:'평택기지 LNG 저장탱크 위험성 평가', period:'평가', formal:'위험성 평가서'},
+  meeting: {title:'회의록',            subtitle:'정비기술처 주간 회의록',          period:'회의', formal:'회의록'},
+};
+
+const detectReportType=(text)=>{
+  if(/위험성|평가서/.test(text))return 'risk';
+  if(/회의록|회의 메모|회의록으로/.test(text))return 'meeting';
+  if(/월간|월별|매월|이번 달/.test(text))return 'monthly';
+  return 'weekly';
+};
+
+const parseReportItems=(text)=>{
+  const items=[];
+  const segments=text.split(/[,，、\n]/).map(s=>s.trim()).filter(Boolean);
+  for(const seg of segments){
+    const m=seg.match(/(.+?)\s*(\d+)\s*(건|개|회|명|차|회차|시간|일)\s*(완료|처리|진행|예정|시행|발생|확인|시작|종료)/);
+    if(m){
+      const label=m[1].trim().replace(/^(이번 주|지난 주|금주|이번 달|이번 분기|올해|작년)\s*/,'').trim();
+      if(label) items.push({label,count:parseInt(m[2],10),unit:m[3],status:m[4]});
+    }
+  }
+  return items;
+};
+
+const koLetter=(i)=>['가','나','다','라','마','바','사','아','자','차'][i]||`${i+1}`;
+
+const getCurrentWeekInfo=()=>{
+  const today=new Date();
+  const day=today.getDay();
+  const monday=new Date(today);
+  monday.setDate(today.getDate()-(day===0?6:day-1));
+  const friday=new Date(monday);
+  friday.setDate(monday.getDate()+4);
+  const fmt=(d)=>`${d.getFullYear()}. ${String(d.getMonth()+1).padStart(2,'0')}. ${String(d.getDate()).padStart(2,'0')}.`;
+  const weekOfMonth=Math.ceil(monday.getDate()/7);
+  return {
+    range:`${fmt(monday)}(월) ~ ${fmt(friday)}(금)`,
+    weekOfMonth,
+    monthName:`${monday.getFullYear()}년 ${monday.getMonth()+1}월`,
+    todayStr:fmt(today),
+    docNumber:`KGTC-정비기술처-${monday.getFullYear()}-${String((monday.getMonth())*4+weekOfMonth).padStart(3,'0')}`,
+  };
+};
+
+const buildReportData=(text)=>{
+  const reportType=detectReportType(text);
+  const meta=REPORT_TYPE_META[reportType];
+  const parsedItems=parseReportItems(text);
+  const items=parsedItems.length>0?parsedItems:[
+    {label:'PSV 정기 점검',count:5,unit:'건',status:'완료'},
+    {label:'배관 누설 탐지',count:2,unit:'건',status:'완료'},
+  ];
+  const week=getCurrentWeekInfo();
+  const nextPlanByType={
+    weekly:['6호기 ~ 10호기 PSV 정기 점검 예정 (5건)','BOG 벤팅 밸브 3년 주기 정밀 진단 (2건)'],
+    monthly:['차월 PSV 정기 점검 10건 진행 예정','신규 IoT 센서 연동 확대 계획'],
+    risk:['고위험 항목 보완 조치 1주 내 시행','후속 모니터링 점검 계획 수립'],
+    meeting:['다음 회의 안건 사전 공유','액션 아이템 진행 상황 점검'],
+  };
+  const itemLines=items.map((it,i)=>`${i+1}. ${it.label}: **${it.count}${it.unit} ${it.status}**`).join('\n');
+  const planLines=nextPlanByType[reportType].map(p=>`- ${p}`).join('\n');
+  const preview=`**[${meta.title} 초안 생성됨]**
+**${meta.subtitle}**
+
+| 구분 | 내용 |
+|------|------|
+| **보고 기간** | ${week.range} |
+| **작성 부서** | 정비기술처 |
+| **작성자** | 김인훈 과장 |
+
+**가. 주요 실적**
+${itemLines}
+
+**나. 차주 계획**
+${planLines}
+
+⚠ AI 생성 초안입니다. 반드시 확인 후 사용하세요.`;
+  return {
+    type:'report',
+    reportType,
+    items,
+    plans:nextPlanByType[reportType],
+    weekInfo:week,
+    completedSteps:0,
+    finalized:false,
+    titleProgress:'처리 단계 진행 중...',
+    titleFinal:'처리 단계 완료',
+    subtitle:meta.subtitle,
+    steps:[
+      {label:'표준 양식 불러오기',sub:`${meta.title} 사내 표준 템플릿 로드 완료`},
+      {label:'정보 항목 매핑',sub:`입력 데이터를 항목별로 자동 분류 완료 (${items.length}건 인식)`},
+      {label:'공문서 개조식 포맷팅',sub:'보고서 양식에 맞게 최종 작성 완료'},
+    ],
+    preview,
+    docTitle:`${week.monthName} ${week.weekOfMonth}주차 ${meta.formal}`,
+    docSubtitle:week.todayStr,
+    docNumber:week.docNumber,
+  };
+};
+
 const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   const toast=useToast();
   const [tab,setTab]=useState('일반');
@@ -5219,16 +5323,31 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
     const t=text.toLowerCase();
     if(/psv|안전밸브|점검 주기|정비|평택|bog/i.test(t))return 'psv';
     if(/시장|cagr|swot|만족경험|분석해/i.test(t))return 'market';
-    if(/보고서|주간|실적|작성해줘|작성/i.test(t))return 'weekly';
+    if(/보고서|주간 실적|월간 실적|위험성 평가|회의록|보고서로 작성|보고서로 정리|보고서 초안/i.test(t))return 'report';
     return 'greeting';
   };
 
   const generate=(prompt)=>{
     const text=(prompt||'').trim();
     if(!text)return;
-    const userMsg={role:'user',content:text,time:'방금 전'};
-    setMessages(p=>[...p,userMsg]);
+    setMessages(p=>[...p,{role:'user',content:text,time:'방금 전'}]);
     setInput('');setSending(true);
+
+    const isReport=(activeAgent?.id==='agent-report')||detectResponseType(text)==='report';
+    if(isReport){
+      setTimeout(()=>{
+        const reportData=buildReportData(text);
+        const msgId=`m${Date.now()}`;
+        setMessages(p=>[...p,{role:'assistant',time:'방금 전',data:reportData,id:msgId}]);
+        setSending(false);
+        const update=(step,extra={})=>setMessages(p=>p.map(m=>m.id===msgId?{...m,data:{...m.data,completedSteps:step,...extra}}:m));
+        setTimeout(()=>update(1),700);
+        setTimeout(()=>update(2),1500);
+        setTimeout(()=>update(3,{finalized:true}),2300);
+      },600);
+      return;
+    }
+
     setTimeout(()=>{
       const kind=detectResponseType(text);
       const resp=TOM_SAMPLE_RESPONSES[kind]||TOM_SAMPLE_RESPONSES.greeting;
@@ -5278,41 +5397,60 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
         </div>
       </div>
     );
-    if(data.type==='report')return (
-      <div>
-        <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 mb-3">
-          <div className="flex items-center space-x-1.5 mb-2.5"><CheckCircle size={14} className="text-emerald-600"/><div className="font-bold text-sm text-slate-900">{data.title}</div></div>
-          <div className="space-y-2">
-            {data.steps.map((s,i)=>(
-              <div key={i} className="flex items-start space-x-2">
-                <CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/>
-                <div><div className="text-[13px] font-medium text-slate-800">{s.label}</div><div className="text-[11px] text-slate-500">{s.sub}</div></div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4 text-[13px] mb-3">{renderMarkdownKogas(data.preview)}</div>
-        <div className="bg-gradient-to-br from-emerald-50 to-sky-50 border border-emerald-200 rounded-xl p-3.5">
-          <div className="flex items-start space-x-3">
-            <div className="w-11 h-14 rounded bg-white border border-slate-200 flex flex-col items-center justify-center shrink-0 shadow-sm">
-              <FileText size={18} className="text-emerald-600"/>
-              <span className="text-[8px] font-bold text-emerald-600 mt-0.5">PDF</span>
+    if(data.type==='report'){
+      const total=data.steps.length;
+      const done=data.completedSteps||0;
+      const isComplete=done>=total && data.finalized;
+      return (
+        <div>
+          <div className={`${isComplete?'bg-emerald-50/70 border-emerald-200':'bg-sky-50/70 border-sky-200'} border rounded-xl p-3.5 mb-3 transition-colors`}>
+            <div className="flex items-center space-x-1.5 mb-2.5">
+              {isComplete?<CheckCircle size={14} className="text-emerald-600"/>:<div className="w-3.5 h-3.5 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"/>}
+              <div className="font-bold text-sm text-slate-900">{isComplete?data.titleFinal:`${data.titleProgress} (${done}/${total})`}</div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-1.5">
-                <span className="font-bold text-sm text-slate-900">{data.docTitle}</span>
-                <span className="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">생성 완료</span>
-              </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">수신: 정비기술처장 · 작성: 김인훈 과장 · {data.docSubtitle}</div>
-              <div className="flex space-x-2 mt-2.5">
-                <button onClick={()=>openReport(data)} className="px-3 py-1.5 border border-emerald-300 text-emerald-700 rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-50"><Eye size={11} className="mr-1"/>문서 미리보기</button>
-                <button onClick={()=>toast('보고서가 다운로드됩니다')} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-600 shadow-sm"><Download size={11} className="mr-1"/>다운로드</button>
-              </div>
+            <div className="space-y-2">
+              {data.steps.map((s,i)=>{
+                const isDone=i<done;
+                const isCurrent=i===done && !isComplete;
+                return (
+                  <div key={i} className="flex items-start space-x-2">
+                    {isDone?<CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/>:isCurrent?<div className="w-3.5 h-3.5 border-2 border-sky-500 border-t-transparent rounded-full animate-spin shrink-0 mt-0.5"/>:<div className="w-3.5 h-3.5 rounded-full border-2 border-slate-200 shrink-0 mt-0.5"/>}
+                    <div className={isDone||isCurrent?'':'opacity-50'}>
+                      <div className={`text-[13px] font-medium ${isDone||isCurrent?'text-slate-800':'text-slate-500'}`}>{s.label}</div>
+                      <div className="text-[11px] text-slate-500">{s.sub}</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
+          {data.finalized && (
+            <>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 text-[13px] mb-3 animate-in">{renderMarkdownKogas(data.preview)}</div>
+              <div className="bg-gradient-to-br from-emerald-50 to-sky-50 border border-emerald-200 rounded-xl p-3.5 animate-in">
+                <div className="flex items-start space-x-3">
+                  <div className="w-11 h-14 rounded bg-white border border-slate-200 flex flex-col items-center justify-center shrink-0 shadow-sm">
+                    <FileText size={18} className="text-emerald-600"/>
+                    <span className="text-[8px] font-bold text-emerald-600 mt-0.5">PDF</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-1.5 flex-wrap">
+                      <span className="font-bold text-sm text-slate-900">{data.docTitle}</span>
+                      <span className="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">생성 완료</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">수신: 정비기술처장 · 작성: 김인훈 과장 · {data.docSubtitle}</div>
+                    <div className="flex space-x-2 mt-2.5">
+                      <button onClick={()=>openReport(data)} className="px-3 py-1.5 border border-emerald-300 text-emerald-700 rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-50"><Eye size={11} className="mr-1"/>문서 미리보기</button>
+                      <button onClick={()=>toast('보고서가 다운로드됩니다')} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-600 shadow-sm"><Download size={11} className="mr-1"/>다운로드</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    );
+      );
+    }
     return null;
   };
 
@@ -5756,7 +5894,14 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                     <div className="px-5 py-3 text-[11px]">
                       <table className="w-full">
                         <tbody className="divide-y divide-slate-100">
-                          {[['문서 번호','KGTC-정비기술처-2026-024'],['수 신','정비기술처장'],['일 시','2026. 02. 26.'],['보 존 기 간','3년'],['작 성 부 서','정비기술처'],['작 성 자','김인훈 과장']].map(([k,v],i)=>(
+                          {[
+                            ['문서 번호',viewingReport.docNumber||'KGTC-정비기술처-2026-024'],
+                            ['수 신','정비기술처장'],
+                            ['일 시',viewingReport.docSubtitle||'-'],
+                            ['보 존 기 간','3년'],
+                            ['작 성 부 서','정비기술처'],
+                            ['작 성 자','김인훈 과장'],
+                          ].map(([k,v],i)=>(
                             <tr key={i}>
                               <td className="py-1 pr-3 text-slate-500 w-24">{k}</td>
                               <td className="py-1 font-medium text-slate-800">{v}</td>
@@ -5776,7 +5921,7 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                         <div className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded mb-1.5">1. 보고 개요</div>
                         <table className="w-full ring-1 ring-slate-200 rounded text-[10px]">
                           <tbody className="divide-y divide-slate-100">
-                            <tr><td className="px-2 py-1 bg-slate-50 w-20 text-slate-500">보고 기간</td><td className="px-2 py-1">2026. 02. 17.(월) ~ 02. 21.(금)</td></tr>
+                            <tr><td className="px-2 py-1 bg-slate-50 w-20 text-slate-500">보고 기간</td><td className="px-2 py-1">{viewingReport.weekInfo?.range||'-'}</td></tr>
                             <tr><td className="px-2 py-1 bg-slate-50 text-slate-500">담당 부서</td><td className="px-2 py-1">정비기술처</td></tr>
                             <tr><td className="px-2 py-1 bg-slate-50 text-slate-500">작성자</td><td className="px-2 py-1">김인훈 과장</td></tr>
                           </tbody>
@@ -5785,17 +5930,19 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                       <div>
                         <div className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded mb-1.5">2. 주요 실적</div>
                         <div className="ml-1 space-y-1">
-                          <div className="text-[10px]">가. <b>설비 점검 (PSV 정기 점검)</b></div>
-                          <div className="ml-3 text-[10px] text-slate-600">- 평택기지 PSV 5건 정기 점검 완료 (Overhaul / POP Test)</div>
-                          <div className="text-[10px]">나. <b>배관 누설 탐지</b></div>
-                          <div className="ml-3 text-[10px] text-slate-600">- 누설 의심 구간 2건 발견 및 보수 완료</div>
+                          {(viewingReport.items||[]).map((it,i)=>(
+                            <React.Fragment key={i}>
+                              <div className="text-[10px]">{koLetter(i)}. <b>{it.label}</b></div>
+                              <div className="ml-3 text-[10px] text-slate-600">- {it.count}{it.unit} {it.status}</div>
+                            </React.Fragment>
+                          ))}
+                          {(!viewingReport.items||viewingReport.items.length===0) && <div className="text-[10px] text-slate-400">실적 항목이 인식되지 않았습니다</div>}
                         </div>
                       </div>
                       <div>
                         <div className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded mb-1.5">3. 차주 계획</div>
                         <div className="ml-3 text-[10px] text-slate-600 space-y-0.5">
-                          <div>- 6호기 ~ 10호기 PSV 정기 점검 예정 (5건)</div>
-                          <div>- BOG 벤팅 밸브 3년 주기 정밀 진단 (2건)</div>
+                          {(viewingReport.plans||[]).map((p,i)=>(<div key={i}>- {p}</div>))}
                         </div>
                       </div>
                     </div>
