@@ -5158,6 +5158,153 @@ const parseReportItems=(text)=>{
 
 const koLetter=(i)=>['가','나','다','라','마','바','사','아','자','차'][i]||`${i+1}`;
 
+const escapeHtml=(s)=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const safeFilename=(s)=>String(s||'document').replace(/[\s\\/:*?"<>|]+/g,'_').replace(/_+/g,'_').slice(0,80);
+
+const buildReportHtml=(report)=>{
+  const items=report.items||[];
+  const plans=report.plans||[];
+  const itemsHtml=items.length?items.map((it,i)=>`<div class="item"><div class="label">${koLetter(i)}. <b>${escapeHtml(it.label)}</b></div><div class="detail">- ${escapeHtml(it.count)}${escapeHtml(it.unit)} ${escapeHtml(it.status)}</div></div>`).join(''):'<div class="muted">실적 항목이 인식되지 않았습니다</div>';
+  const plansHtml=plans.map(p=>`<div class="plan">- ${escapeHtml(p)}</div>`).join('');
+  const title=escapeHtml(report.docTitle||'보고서');
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f1f5f9;color:#0f172a;margin:0;padding:24px;line-height:1.5}
+.page{max-width:780px;margin:0 auto;background:#fff;padding:48px 56px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.print-bar{max-width:780px;margin:0 auto 16px;display:flex;justify-content:flex-end;gap:8px}
+.print-bar button{padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;border:none;cursor:pointer}
+.btn-primary{background:#10b981;color:#fff}
+.btn-secondary{background:#fff;color:#475569;border:1px solid #cbd5e1 !important}
+.btn-primary:hover{background:#059669}
+.btn-secondary:hover{background:#f8fafc}
+.letterhead{display:flex;align-items:center;gap:16px;padding-bottom:20px;border-bottom:1px solid #cbd5e1;margin-bottom:24px}
+.logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;box-shadow:0 4px 12px rgba(56,189,248,.3)}
+.org-name{font-size:20px;font-weight:900;color:#0f172a}
+.org-en{font-size:10px;color:#94a3b8;letter-spacing:2px;margin-top:4px}
+.meta-table{width:100%;font-size:13px;margin-bottom:20px;border-collapse:collapse}
+.meta-table td{padding:5px 12px 5px 0;vertical-align:top}
+.meta-table tr td:first-child{color:#64748b;width:110px;letter-spacing:1px}
+.meta-table tr td:nth-child(2){font-weight:600;color:#1e293b}
+.title-row{border-top:1px solid #cbd5e1;border-bottom:2px solid #334155;text-align:center;padding:18px 0;margin-bottom:32px}
+.title-row .ko-label{font-size:12px;color:#94a3b8;letter-spacing:6px;margin-bottom:6px}
+.title-row .title{font-size:22px;font-weight:900;color:#0f172a}
+.section{margin-bottom:24px;font-size:14px}
+.section h2{font-size:15px;font-weight:700;background:#f1f5f9;padding:8px 14px;border-radius:4px;margin:0 0 12px;color:#0f172a}
+.section-body{padding-left:8px}
+.item{margin-bottom:8px}
+.item .label{font-size:14px;color:#1e293b}
+.item .detail{font-size:13px;color:#475569;padding-left:18px;margin-top:2px}
+.plan{font-size:13px;color:#475569;margin-bottom:4px;padding-left:8px}
+.info-table{width:100%;border:1px solid #cbd5e1;border-radius:4px;border-collapse:collapse;font-size:13px;overflow:hidden}
+.info-table tr{border-bottom:1px solid #e2e8f0}
+.info-table tr:last-child{border-bottom:none}
+.info-table td{padding:8px 12px}
+.info-table tr td:first-child{background:#f8fafc;color:#64748b;width:120px;font-weight:500}
+.muted{color:#94a3b8;font-size:13px}
+.disclaimer{margin-top:24px;padding:12px 16px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:4px;font-size:12px;color:#78350f}
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}
+.watermark{display:inline-block;background:#10b981;color:#fff;padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;margin-bottom:8px}
+@media print{
+  body{background:#fff;padding:0}
+  .page{box-shadow:none;padding:24px;border-radius:0}
+  .print-bar{display:none}
+}
+</style>
+</head>
+<body>
+<div class="print-bar">
+  <button class="btn-secondary" onclick="window.close()">닫기</button>
+  <button class="btn-primary" onclick="window.print()">📄 PDF로 저장 / 인쇄</button>
+</div>
+<div class="page">
+  <div class="letterhead">
+    <div class="logo">K</div>
+    <div>
+      <div class="org-name">한국가스기술공사</div>
+      <div class="org-en">KOGAS TECH CORPORATION</div>
+    </div>
+  </div>
+  <table class="meta-table">
+    <tr><td>문서 번호</td><td>${escapeHtml(report.docNumber||'-')}</td></tr>
+    <tr><td>수 신</td><td>정비기술처장</td></tr>
+    <tr><td>일 시</td><td>${escapeHtml(report.docSubtitle||'-')}</td></tr>
+    <tr><td>보 존 기 간</td><td>3년</td></tr>
+    <tr><td>작 성 부 서</td><td>정비기술처</td></tr>
+    <tr><td>작 성 자</td><td>김인훈 과장</td></tr>
+  </table>
+  <div class="title-row">
+    <div class="ko-label">제 목</div>
+    <div class="title">${title}</div>
+  </div>
+  <div class="section">
+    <h2>1. 보고 개요</h2>
+    <div class="section-body">
+      <table class="info-table">
+        <tr><td>보고 기간</td><td>${escapeHtml(report.weekInfo?.range||'-')}</td></tr>
+        <tr><td>담당 부서</td><td>정비기술처</td></tr>
+        <tr><td>작성자</td><td>김인훈 과장</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <h2>2. 주요 실적</h2>
+    <div class="section-body">${itemsHtml}</div>
+  </div>
+  <div class="section">
+    <h2>3. 차주 계획</h2>
+    <div class="section-body">${plansHtml||'<div class="muted">계획 항목 없음</div>'}</div>
+  </div>
+  <div class="disclaimer">⚠ 본 문서는 KOGAS-Tech AI가 자동 생성한 초안입니다. 반드시 작성자의 검토를 거친 후 사용하시기 바랍니다.</div>
+  <div class="footer">한국가스기술공사 KOGAS-Tech AI · 자동 생성 보고서 초안 · 검토 후 사용</div>
+</div>
+</body>
+</html>`;
+};
+
+const buildSourceText=(source)=>{
+  return `[KOGAS-Tech AI · 참조 문서 발췌]
+
+문서명 : ${source.doc||'-'}
+페이지 : ${source.page||'-'}
+유사도 : ${source.similarity||'-'}%
+주요 구간 : ${(source.highlights||[]).join(' / ')||'-'}
+
+----------------------------------------
+${source.excerpt||''}
+----------------------------------------
+
+본 발췌는 RAG 답변의 근거로 사용된 청크입니다. 원본 문서를 함께 확인해 주세요.
+생성: ${new Date().toLocaleString('ko-KR')}
+`;
+};
+
+const downloadBlob=(content,filename,mime='text/html;charset=utf-8')=>{
+  const blob=new Blob([content],{type:mime});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),200);
+};
+
+const openInNewWindow=(html,autoPrint=false)=>{
+  const w=window.open('','_blank','noopener,noreferrer');
+  if(!w)return false;
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  if(autoPrint){
+    setTimeout(()=>{try{w.focus();w.print();}catch{}},300);
+  }
+  return true;
+};
+
 const getCurrentWeekInfo=()=>{
   const today=new Date();
   const day=today.getDay();
@@ -5258,6 +5405,40 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   const openSource=(s)=>{setViewingSource(s);setRightView('source');setShowRight(true);};
   const openReport=(r)=>{setViewingReport(r);setRightView('report');setShowRight(true);};
   const closeViewer=()=>{setRightView('default');setViewingSource(null);setViewingReport(null);};
+
+  const downloadReport=(r)=>{
+    const html=buildReportHtml(r);
+    downloadBlob(html,`${safeFilename(r.docTitle||'KOGAS_보고서')}.html`);
+    toast(`'${r.docTitle}' 파일이 다운로드되었습니다`);
+  };
+  const previewReportFullscreen=(r)=>{
+    const ok=openInNewWindow(buildReportHtml(r),false);
+    if(!ok)toast('팝업이 차단되었습니다. 브라우저 팝업을 허용해 주세요','warning');
+  };
+  const printReport=(r)=>{
+    const ok=openInNewWindow(buildReportHtml(r),true);
+    if(!ok)toast('팝업이 차단되었습니다. 브라우저 팝업을 허용해 주세요','warning');
+  };
+  const downloadSource=(s)=>{
+    const text=buildSourceText(s);
+    downloadBlob(text,`${safeFilename((s.doc||'source')+'_p'+(s.page||''))}.txt`,'text/plain;charset=utf-8');
+    toast(`'${s.doc}' 발췌가 다운로드되었습니다`);
+  };
+  const previewSourceFullscreen=(s)=>{
+    const html=`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>${escapeHtml(s.doc)}</title>
+<style>body{font-family:'Pretendard','Malgun Gothic',sans-serif;background:#f1f5f9;color:#0f172a;margin:0;padding:24px}.page{max-width:780px;margin:0 auto;background:#fff;padding:48px 56px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.08)}.head{padding-bottom:20px;border-bottom:1px solid #cbd5e1;margin-bottom:24px}.head h1{margin:0 0 8px;font-size:18px}.meta{display:flex;gap:8px;font-size:11px}.chip{padding:2px 8px;border-radius:4px;font-weight:700}.chip-page{background:#f1f5f9;color:#475569}.chip-sim{background:#dcfce7;color:#15803d}.excerpt{white-space:pre-wrap;font-size:13px;line-height:1.8;color:#334155;background:#f8fafc;padding:24px;border-radius:8px;border:1px solid #e2e8f0}mark{background:#fef08a;color:#0f172a;font-weight:700;padding:0 2px;border-radius:2px}.bar{max-width:780px;margin:0 auto 16px;display:flex;justify-content:flex-end;gap:8px}.bar button{padding:8px 16px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer}.btn-p{background:#10b981;color:#fff}.btn-s{background:#fff;color:#475569;border:1px solid #cbd5e1 !important}@media print{body{background:#fff;padding:0}.page{box-shadow:none}.bar{display:none}}</style></head>
+<body><div class="bar"><button class="btn-s" onclick="window.close()">닫기</button><button class="btn-p" onclick="window.print()">📄 PDF로 저장 / 인쇄</button></div>
+<div class="page"><div class="head"><h1>${escapeHtml(s.doc)}</h1><div class="meta"><span class="chip chip-page">p.${escapeHtml(s.page)}</span><span class="chip chip-sim">유사도 ${escapeHtml(s.similarity)}%</span></div></div><div class="excerpt">${(s.excerpt||'').split('\n').map(line=>{
+  let html=escapeHtml(line);
+  (s.highlights||[]).forEach(h=>{
+    const safeH=escapeHtml(h);
+    html=html.split(safeH).join(`<mark>${safeH}</mark>`);
+  });
+  return html||'&nbsp;';
+}).join('<br/>')}</div></div></body></html>`;
+    const ok=openInNewWindow(html,false);
+    if(!ok)toast('팝업이 차단되었습니다','warning');
+  };
 
   const renderMarkdownKogas=(text)=>{
     if(!text)return null;
@@ -5441,7 +5622,8 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                     <div className="text-[11px] text-slate-500 mt-0.5">수신: 정비기술처장 · 작성: 김인훈 과장 · {data.docSubtitle}</div>
                     <div className="flex space-x-2 mt-2.5">
                       <button onClick={()=>openReport(data)} className="px-3 py-1.5 border border-emerald-300 text-emerald-700 rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-50"><Eye size={11} className="mr-1"/>문서 미리보기</button>
-                      <button onClick={()=>toast('보고서가 다운로드됩니다')} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-600 shadow-sm"><Download size={11} className="mr-1"/>다운로드</button>
+                      <button onClick={()=>previewReportFullscreen(data)} className="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-[11px] font-bold flex items-center hover:bg-slate-50"><ExternalLink size={11} className="mr-1"/>새 창</button>
+                      <button onClick={()=>downloadReport(data)} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-600 shadow-sm"><Download size={11} className="mr-1"/>다운로드</button>
                     </div>
                   </div>
                 </div>
@@ -5469,7 +5651,7 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
             </button>
             <span className="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold mr-1.5">유사도 {s.similarity}%</span>
             <button onClick={()=>openSource(s)} className="text-[10px] bg-sky-50 text-sky-700 hover:bg-sky-100 px-2 py-0.5 rounded font-bold mr-1"><Eye size={9} className="inline mr-0.5 -mt-0.5"/>미리</button>
-            <button onClick={()=>toast(`${s.doc} 다운로드`)} className="text-[10px] bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-2 py-0.5 rounded font-bold"><Download size={9} className="inline mr-0.5 -mt-0.5"/>다운로드</button>
+            <button onClick={()=>downloadSource(s)} className="text-[10px] bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-2 py-0.5 rounded font-bold"><Download size={9} className="inline mr-0.5 -mt-0.5"/>다운로드</button>
           </div>
         ))}
       </div>
@@ -5859,8 +6041,8 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                       </div>
                     </div>
                     <div className="flex">
-                      <button onClick={()=>toast('원본 PDF를 새 창에서 엽니다','info')} className="flex-1 py-1.5 text-[10px] font-bold text-sky-700 hover:bg-sky-50 border-r border-slate-100 flex items-center justify-center"><ExternalLink size={10} className="mr-1"/>원본 열기</button>
-                      <button onClick={()=>toast(`${viewingSource.doc} 다운로드`)} className="flex-1 py-1.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-50 flex items-center justify-center"><Download size={10} className="mr-1"/>다운로드</button>
+                      <button onClick={()=>previewSourceFullscreen(viewingSource)} className="flex-1 py-1.5 text-[10px] font-bold text-sky-700 hover:bg-sky-50 border-r border-slate-100 flex items-center justify-center"><ExternalLink size={10} className="mr-1"/>원본 열기</button>
+                      <button onClick={()=>downloadSource(viewingSource)} className="flex-1 py-1.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-50 flex items-center justify-center"><Download size={10} className="mr-1"/>다운로드</button>
                     </div>
                   </div>
                   {/* Highlighted excerpt */}
@@ -5947,9 +6129,10 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex space-x-2 mt-3">
-                    <button onClick={()=>toast('인쇄 미리보기','info')} className="flex-1 py-2 border border-slate-300 text-slate-700 rounded-lg text-[11px] font-bold hover:bg-white"><Eye size={11} className="inline mr-1"/>인쇄</button>
-                    <button onClick={()=>toast('PDF로 다운로드합니다')} className="flex-1 py-2 bg-emerald-500 text-white rounded-lg text-[11px] font-bold hover:bg-emerald-600 shadow-sm"><Download size={11} className="inline mr-1"/>PDF 다운로드</button>
+                  <div className="grid grid-cols-3 gap-2 mt-3">
+                    <button onClick={()=>previewReportFullscreen(viewingReport)} className="py-2 border border-slate-300 text-slate-700 rounded-lg text-[11px] font-bold hover:bg-white flex items-center justify-center"><ExternalLink size={11} className="mr-1"/>전체</button>
+                    <button onClick={()=>printReport(viewingReport)} className="py-2 border border-slate-300 text-slate-700 rounded-lg text-[11px] font-bold hover:bg-white flex items-center justify-center"><Eye size={11} className="mr-1"/>인쇄</button>
+                    <button onClick={()=>downloadReport(viewingReport)} className="py-2 bg-emerald-500 text-white rounded-lg text-[11px] font-bold hover:bg-emerald-600 shadow-sm flex items-center justify-center"><Download size={11} className="mr-1"/>다운로드</button>
                   </div>
                 </div>
               </div>
