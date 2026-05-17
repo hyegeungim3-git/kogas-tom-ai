@@ -5130,11 +5130,14 @@ const KOGAS_NOTICE = {
 
 // ---------- Report generation helpers (real, dynamic) ----------
 const REPORT_TYPE_META = {
-  weekly:  {title:'주간 실적 보고서', subtitle:'정비기술처 주간 업무 실적 보고', period:'주간',  formal:'주간 실적 보고'},
-  monthly: {title:'월간 운영 보고서', subtitle:'정비기술처 월간 운영 현황 보고', period:'월간',  formal:'월간 운영 보고'},
-  risk:    {title:'위험성 평가서',     subtitle:'평택기지 LNG 저장탱크 위험성 평가', period:'평가', formal:'위험성 평가서'},
-  meeting: {title:'회의록',            subtitle:'정비기술처 주간 회의록',          period:'회의', formal:'회의록'},
+  weekly:  {title:'주간 실적 보고서', subtitle:'정비기술처 주간 업무 실적 보고', period:'주간',  formal:'주간 업무 실적 보고', security:'민감(S)', retention:'5년'},
+  monthly: {title:'월간 운영 보고서', subtitle:'정비기술처 월간 운영 현황 보고', period:'월간',  formal:'월간 운영 보고',     security:'민감(S)', retention:'5년'},
+  risk:    {title:'위험성 평가서',     subtitle:'평택기지 LNG 저장탱크 위험성 평가', period:'평가', formal:'위험성 평가서',      security:'기밀(C)', retention:'10년'},
+  meeting: {title:'회의록',            subtitle:'정비기술처 주간 회의록',          period:'회의', formal:'회의록',             security:'일반(G)', retention:'3년'},
 };
+const REPORT_AUTHOR='김민준 과장';
+const REPORT_RECEIVER='정비기술처장';
+const REPORT_COPYTO='설비점검팀장';
 
 const detectReportType=(text)=>{
   if(/위험성|평가서/.test(text))return 'risk';
@@ -5164,9 +5167,11 @@ const safeFilename=(s)=>String(s||'document').replace(/[\s\\/:*?"<>|]+/g,'_').re
 const buildReportHtml=(report)=>{
   const items=report.items||[];
   const plans=report.plans||[];
-  const itemsHtml=items.length?items.map((it,i)=>`<div class="item"><div class="label">${koLetter(i)}. <b>${escapeHtml(it.label)}</b></div><div class="detail">- ${escapeHtml(it.count)}${escapeHtml(it.unit)} ${escapeHtml(it.status)}</div></div>`).join(''):'<div class="muted">실적 항목이 인식되지 않았습니다</div>';
+  const itemsHtml=items.length?items.map((it,i)=>`<div class="impact-item"><div class="impact-label">${koLetter(i)}. <b>${escapeHtml(it.label)}</b></div><div class="impact-detail">- ${escapeHtml(it.label)} <b>${escapeHtml(it.count)}${escapeHtml(it.unit)}</b> ${escapeHtml(it.status)}</div></div>`).join(''):'<div class="muted">실적 항목이 인식되지 않았습니다</div>';
   const plansHtml=plans.map(p=>`<div class="plan">- ${escapeHtml(p)}</div>`).join('');
   const title=escapeHtml(report.docTitle||'보고서');
+  const security=escapeHtml(report.security||'민감(S)');
+  const securityColor=(report.security||'').includes('기밀')?'#dc2626':(report.security||'').includes('일반')?'#64748b':'#f97316';
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -5175,90 +5180,100 @@ const buildReportHtml=(report)=>{
 <title>${title}</title>
 <style>
 *{box-sizing:border-box}
-body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f1f5f9;color:#0f172a;margin:0;padding:24px;line-height:1.5}
-.page{max-width:780px;margin:0 auto;background:#fff;padding:48px 56px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
-.print-bar{max-width:780px;margin:0 auto 16px;display:flex;justify-content:flex-end;gap:8px}
-.print-bar button{padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;border:none;cursor:pointer}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#e2e8f0;color:#0f172a;margin:0;padding:32px;line-height:1.6}
+.page{max-width:820px;margin:0 auto;background:#fff;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden}
+.print-bar{max-width:820px;margin:0 auto 20px;display:flex;justify-content:flex-end;gap:8px;align-items:center}
+.print-bar button{padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .btn-primary{background:#10b981;color:#fff}
-.btn-secondary{background:#fff;color:#475569;border:1px solid #cbd5e1 !important}
 .btn-primary:hover{background:#059669}
+.btn-secondary{background:#fff;color:#334155;border:1.5px solid #cbd5e1 !important}
 .btn-secondary:hover{background:#f8fafc}
-.letterhead{display:flex;align-items:center;gap:16px;padding-bottom:20px;border-bottom:1px solid #cbd5e1;margin-bottom:24px}
-.logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;box-shadow:0 4px 12px rgba(56,189,248,.3)}
-.org-name{font-size:20px;font-weight:900;color:#0f172a}
-.org-en{font-size:10px;color:#94a3b8;letter-spacing:2px;margin-top:4px}
-.meta-table{width:100%;font-size:13px;margin-bottom:20px;border-collapse:collapse}
-.meta-table td{padding:5px 12px 5px 0;vertical-align:top}
-.meta-table tr td:first-child{color:#64748b;width:110px;letter-spacing:1px}
-.meta-table tr td:nth-child(2){font-weight:600;color:#1e293b}
-.title-row{border-top:1px solid #cbd5e1;border-bottom:2px solid #334155;text-align:center;padding:18px 0;margin-bottom:32px}
-.title-row .ko-label{font-size:12px;color:#94a3b8;letter-spacing:6px;margin-bottom:6px}
-.title-row .title{font-size:22px;font-weight:900;color:#0f172a}
-.section{margin-bottom:24px;font-size:14px}
-.section h2{font-size:15px;font-weight:700;background:#f1f5f9;padding:8px 14px;border-radius:4px;margin:0 0 12px;color:#0f172a}
-.section-body{padding-left:8px}
-.item{margin-bottom:8px}
-.item .label{font-size:14px;color:#1e293b}
-.item .detail{font-size:13px;color:#475569;padding-left:18px;margin-top:2px}
-.plan{font-size:13px;color:#475569;margin-bottom:4px;padding-left:8px}
-.info-table{width:100%;border:1px solid #cbd5e1;border-radius:4px;border-collapse:collapse;font-size:13px;overflow:hidden}
-.info-table tr{border-bottom:1px solid #e2e8f0}
-.info-table tr:last-child{border-bottom:none}
-.info-table td{padding:8px 12px}
-.info-table tr td:first-child{background:#f8fafc;color:#64748b;width:120px;font-weight:500}
-.muted{color:#94a3b8;font-size:13px}
-.disclaimer{margin-top:24px;padding:12px 16px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:4px;font-size:12px;color:#78350f}
-.footer{margin-top:40px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}
-.watermark{display:inline-block;background:#10b981;color:#fff;padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;margin-bottom:8px}
+.line-top{height:5px;background:#1e3a8a}
+.line-mid{height:2px;background:#1e3a8a;margin:0 56px}
+.letterhead{padding:36px 56px 28px;display:flex;align-items:center;gap:18px}
+.logo-box{width:64px;height:64px;border-radius:10px;background:#1e3a8a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:30px;letter-spacing:-1px}
+.org-name{font-size:24px;font-weight:900;color:#1e3a8a;letter-spacing:-0.5px}
+.org-en{font-size:11px;color:#94a3b8;letter-spacing:3px;margin-top:4px;font-weight:500}
+.meta-section{padding:28px 56px}
+.meta-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:24px 28px}
+.meta-row{display:flex;font-size:14px;padding:6px 0;align-items:center}
+.meta-row .key{width:110px;color:#475569;letter-spacing:6px;font-weight:500;flex-shrink:0}
+.meta-row .val{color:#0f172a;font-weight:500;flex:1}
+.meta-row .pill{display:inline-block;background:${securityColor};color:#fff;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0}
+.title-section{padding:32px 56px;text-align:center}
+.title-section .ko-label{font-size:24px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;display:inline}
+.body-section{padding:8px 56px 48px}
+.section{margin-bottom:32px}
+.section-head{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.section-head .bar{width:3px;height:22px;background:#2563eb;border-radius:2px}
+.section-head h2{font-size:17px;font-weight:800;color:#0f172a;margin:0}
+.info-table{width:100%;border:1px solid #e2e8f0;border-radius:8px;border-collapse:separate;border-spacing:0;font-size:13px;overflow:hidden}
+.info-table tr td{padding:11px 16px;border-bottom:1px solid #f1f5f9}
+.info-table tr:last-child td{border-bottom:none}
+.info-table tr td:first-child{background:#f8fafc;color:#475569;width:140px;font-weight:500}
+.info-table tr td:nth-child(2){color:#0f172a;font-weight:500}
+.impact-item{margin-bottom:14px;padding-left:4px}
+.impact-label{font-size:15px;color:#0f172a;font-weight:700;margin-bottom:4px}
+.impact-detail{font-size:13px;color:#334155;padding-left:18px}
+.plan{font-size:13px;color:#334155;margin-bottom:6px;padding-left:4px}
+.muted{color:#94a3b8;font-size:13px;font-style:italic}
+.disclaimer{margin:32px 56px;padding:14px 18px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:4px;font-size:12px;color:#78350f}
+.footer{padding:16px 0;background:#f8fafc;font-size:11px;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0}
 @media print{
   body{background:#fff;padding:0}
-  .page{box-shadow:none;padding:24px;border-radius:0}
+  .page{box-shadow:none;border-radius:0}
   .print-bar{display:none}
 }
 </style>
 </head>
 <body>
 <div class="print-bar">
-  <button class="btn-secondary" onclick="window.close()">닫기</button>
-  <button class="btn-primary" onclick="window.print()">📄 PDF로 저장 / 인쇄</button>
+  <button class="btn-secondary" onclick="window.close()">✕ 닫기</button>
+  <button class="btn-primary" onclick="window.print()">🖨 PDF로 저장 / 인쇄</button>
 </div>
 <div class="page">
+  <div class="line-top"></div>
   <div class="letterhead">
-    <div class="logo">K</div>
+    <div class="logo-box">K</div>
     <div>
       <div class="org-name">한국가스기술공사</div>
-      <div class="org-en">KOGAS TECH CORPORATION</div>
+      <div class="org-en">KOREA GAS TECHNOLOGY CORPORATION</div>
     </div>
   </div>
-  <table class="meta-table">
-    <tr><td>문서 번호</td><td>${escapeHtml(report.docNumber||'-')}</td></tr>
-    <tr><td>수 신</td><td>정비기술처장</td></tr>
-    <tr><td>일 시</td><td>${escapeHtml(report.docSubtitle||'-')}</td></tr>
-    <tr><td>보 존 기 간</td><td>3년</td></tr>
-    <tr><td>작 성 부 서</td><td>정비기술처</td></tr>
-    <tr><td>작 성 자</td><td>김인훈 과장</td></tr>
-  </table>
-  <div class="title-row">
-    <div class="ko-label">제 목</div>
-    <div class="title">${title}</div>
+  <div class="line-mid"></div>
+  <div class="meta-section">
+    <div class="meta-card">
+      <div class="meta-row"><div class="key">문 서 번 호</div><div class="val">${escapeHtml(report.docNumber||'-')}</div></div>
+      <div class="meta-row"><div class="key">시&nbsp;&nbsp;&nbsp; 행</div><div class="val">${escapeHtml(report.docSubtitle||'-')}</div></div>
+      <div class="meta-row"><div class="key">보 존 기 간</div><div class="val">${escapeHtml(report.retention||'5년')}</div></div>
+      <div class="meta-row"><div class="key">보 안 등 급</div><div class="val"><span class="pill">${security}</span></div></div>
+      <div class="meta-row"><div class="key">수&nbsp;&nbsp;&nbsp; 신</div><div class="val">${escapeHtml(report.receiver||REPORT_RECEIVER)}</div></div>
+      <div class="meta-row"><div class="key">참&nbsp;&nbsp;&nbsp; 조</div><div class="val">${escapeHtml(report.copyTo||REPORT_COPYTO)}</div></div>
+      <div class="meta-row"><div class="key">발&nbsp;&nbsp;&nbsp; 신</div><div class="val">${escapeHtml(report.sender||('정비기술처 '+REPORT_AUTHOR))}</div></div>
+    </div>
   </div>
-  <div class="section">
-    <h2>1. 보고 개요</h2>
-    <div class="section-body">
+  <div class="line-mid"></div>
+  <div class="title-section">
+    <span class="ko-label">제&nbsp;&nbsp;목&nbsp;&nbsp;:&nbsp;&nbsp;${title}</span>
+  </div>
+  <div class="line-mid"></div>
+  <div class="body-section">
+    <div class="section">
+      <div class="section-head"><div class="bar"></div><h2>1. 보고 개요</h2></div>
       <table class="info-table">
         <tr><td>보고 기간</td><td>${escapeHtml(report.weekInfo?.range||'-')}</td></tr>
-        <tr><td>담당 부서</td><td>정비기술처</td></tr>
-        <tr><td>작성자</td><td>김인훈 과장</td></tr>
+        <tr><td>작성 부서</td><td>정비기술처</td></tr>
+        <tr><td>작성자</td><td>${escapeHtml(report.author||REPORT_AUTHOR)}</td></tr>
       </table>
     </div>
-  </div>
-  <div class="section">
-    <h2>2. 주요 실적</h2>
-    <div class="section-body">${itemsHtml}</div>
-  </div>
-  <div class="section">
-    <h2>3. 차주 계획</h2>
-    <div class="section-body">${plansHtml||'<div class="muted">계획 항목 없음</div>'}</div>
+    <div class="section">
+      <div class="section-head"><div class="bar"></div><h2>2. 주요 실적</h2></div>
+      ${itemsHtml}
+    </div>
+    <div class="section">
+      <div class="section-head"><div class="bar"></div><h2>3. 차주 계획</h2></div>
+      ${plansHtml||'<div class="muted">계획 항목 없음</div>'}
+    </div>
   </div>
   <div class="disclaimer">⚠ 본 문서는 KOGAS-Tech AI가 자동 생성한 초안입니다. 반드시 작성자의 검토를 거친 후 사용하시기 바랍니다.</div>
   <div class="footer">한국가스기술공사 KOGAS-Tech AI · 자동 생성 보고서 초안 · 검토 후 사용</div>
@@ -5347,7 +5362,7 @@ const buildReportData=(text)=>{
 |------|------|
 | **보고 기간** | ${week.range} |
 | **작성 부서** | 정비기술처 |
-| **작성자** | 김인훈 과장 |
+| **작성자** | ${REPORT_AUTHOR} |
 
 **가. 주요 실적**
 ${itemLines}
@@ -5376,6 +5391,12 @@ ${planLines}
     docTitle:`${week.monthName} ${week.weekOfMonth}주차 ${meta.formal}`,
     docSubtitle:week.todayStr,
     docNumber:week.docNumber,
+    security:meta.security,
+    retention:meta.retention,
+    receiver:REPORT_RECEIVER,
+    copyTo:REPORT_COPYTO,
+    sender:`정비기술처 ${REPORT_AUTHOR}`,
+    author:REPORT_AUTHOR,
   };
 };
 
@@ -5401,9 +5422,10 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   const [rightView,setRightView]=useState('default'); // 'default' | 'source' | 'report'
   const [viewingSource,setViewingSource]=useState(null);
   const [viewingReport,setViewingReport]=useState(null);
+  const [modalReport,setModalReport]=useState(null);
   const endRef=useRef(null);
   const openSource=(s)=>{setViewingSource(s);setRightView('source');setShowRight(true);};
-  const openReport=(r)=>{setViewingReport(r);setRightView('report');setShowRight(true);};
+  const openReport=(r)=>{setModalReport(r);};
   const closeViewer=()=>{setRightView('default');setViewingSource(null);setViewingReport(null);};
 
   const downloadReport=(r)=>{
@@ -5622,7 +5644,6 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                     <div className="text-[11px] text-slate-500 mt-0.5">수신: 정비기술처장 · 작성: 김인훈 과장 · {data.docSubtitle}</div>
                     <div className="flex space-x-2 mt-2.5">
                       <button onClick={()=>openReport(data)} className="px-3 py-1.5 border border-emerald-300 text-emerald-700 rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-50"><Eye size={11} className="mr-1"/>문서 미리보기</button>
-                      <button onClick={()=>previewReportFullscreen(data)} className="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-[11px] font-bold flex items-center hover:bg-slate-50"><ExternalLink size={11} className="mr-1"/>새 창</button>
                       <button onClick={()=>downloadReport(data)} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-600 shadow-sm"><Download size={11} className="mr-1"/>다운로드</button>
                     </div>
                   </div>
@@ -6245,6 +6266,129 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
           </button>
         )}
       </div>
+
+      {/* ===== REPORT PREVIEW MODAL (full document) ===== */}
+      {modalReport && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-6 animate-in" onClick={()=>setModalReport(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden" onClick={e=>e.stopPropagation()}>
+            {/* Modal header bar */}
+            <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between shrink-0">
+              <div className="flex items-center space-x-3 min-w-0">
+                <div className="w-11 h-11 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+                  <FileText size={18} className="text-emerald-600"/>
+                </div>
+                <div className="min-w-0">
+                  <div className="font-bold text-[15px] truncate text-slate-900">{modalReport.docTitle}</div>
+                  <div className="text-[11px] text-slate-500 truncate mt-0.5">{modalReport.docNumber} · {modalReport.docSubtitle}</div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 shrink-0">
+                <button onClick={()=>printReport(modalReport)} className="px-3.5 py-2 border border-slate-300 text-slate-700 rounded-lg text-[12px] font-bold flex items-center hover:bg-slate-50">
+                  <span className="mr-1.5">🖨</span>인쇄 / PDF
+                </button>
+                <button onClick={()=>downloadReport(modalReport)} className="px-3.5 py-2 bg-emerald-500 text-white rounded-lg text-[12px] font-bold flex items-center hover:bg-emerald-600 shadow-sm">
+                  <Download size={13} className="mr-1.5"/>다운로드
+                </button>
+                <button onClick={()=>setModalReport(null)} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 rounded-lg ml-1"><X size={18}/></button>
+              </div>
+            </div>
+
+            {/* Modal body: scrollable formatted document */}
+            <div className="flex-1 overflow-y-auto bg-slate-50">
+              {/* Top navy band */}
+              <div className="h-[5px] bg-blue-900"/>
+              {/* Letterhead */}
+              <div className="bg-white px-14 pt-10 pb-7 flex items-center space-x-4">
+                <div className="w-16 h-16 rounded-xl bg-blue-900 flex items-center justify-center shadow-sm">
+                  <span className="text-white font-black text-[28px] leading-none">K</span>
+                </div>
+                <div>
+                  <div className="text-[24px] font-extrabold text-blue-900 tracking-tight leading-none">한국가스기술공사</div>
+                  <div className="text-[11px] text-slate-400 tracking-[0.25em] mt-2 font-medium">KOREA GAS TECHNOLOGY CORPORATION</div>
+                </div>
+              </div>
+              {/* Mid navy line */}
+              <div className="bg-white px-14"><div className="h-0.5 bg-blue-900"/></div>
+              {/* Meta card */}
+              <div className="bg-white px-14 py-7">
+                <div className="bg-slate-50 border border-slate-200 rounded-xl px-8 py-6">
+                  {[
+                    {k:'문 서 번 호',v:modalReport.docNumber||'-'},
+                    {k:'시 　　 행',v:modalReport.docSubtitle||'-'},
+                    {k:'보 존 기 간',v:modalReport.retention||'5년'},
+                    {k:'보 안 등 급',pill:modalReport.security||'민감(S)'},
+                    {k:'수 　　 신',v:modalReport.receiver||REPORT_RECEIVER},
+                    {k:'참 　　 조',v:modalReport.copyTo||REPORT_COPYTO},
+                    {k:'발 　　 신',v:modalReport.sender||('정비기술처 '+REPORT_AUTHOR)},
+                  ].map((r,i)=>(
+                    <div key={i} className="flex items-center text-[14px] py-1.5">
+                      <div className="w-28 text-slate-500 tracking-[0.18em] font-medium shrink-0">{r.k}</div>
+                      <div className="flex-1 text-slate-900 font-medium">
+                        {r.pill ? <span className={`inline-block px-2.5 py-1 rounded text-white text-[12px] font-bold tracking-normal ${r.pill.includes('기밀')?'bg-red-600':r.pill.includes('일반')?'bg-slate-500':'bg-orange-500'}`}>{r.pill}</span> : r.v}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Mid navy line */}
+              <div className="bg-white px-14"><div className="h-0.5 bg-blue-900"/></div>
+              {/* Title */}
+              <div className="bg-white px-14 py-8 text-center">
+                <div className="text-[22px] font-extrabold text-slate-900 tracking-tight">제&nbsp;&nbsp;목&nbsp;&nbsp;:&nbsp;&nbsp;{modalReport.docTitle}</div>
+              </div>
+              {/* Mid navy line */}
+              <div className="bg-white px-14"><div className="h-0.5 bg-blue-900"/></div>
+              {/* Sections */}
+              <div className="bg-white px-14 pt-8 pb-12 space-y-8">
+                {/* 1. 보고 개요 */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-3.5">
+                    <div className="w-1 h-6 bg-blue-600 rounded-sm"/>
+                    <h2 className="text-[17px] font-extrabold text-slate-900">1. 보고 개요</h2>
+                  </div>
+                  <table className="w-full border border-slate-200 rounded-lg overflow-hidden text-[13px]">
+                    <tbody className="divide-y divide-slate-100">
+                      <tr><td className="bg-slate-50 px-4 py-3 w-36 text-slate-500 font-medium">보고 기간</td><td className="px-4 py-3 text-slate-900 font-medium">{modalReport.weekInfo?.range||'-'}</td></tr>
+                      <tr><td className="bg-slate-50 px-4 py-3 text-slate-500 font-medium">작성 부서</td><td className="px-4 py-3 text-slate-900 font-medium">정비기술처</td></tr>
+                      <tr><td className="bg-slate-50 px-4 py-3 text-slate-500 font-medium">작성자</td><td className="px-4 py-3 text-slate-900 font-medium">{modalReport.author||REPORT_AUTHOR}</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                {/* 2. 주요 실적 */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-3.5">
+                    <div className="w-1 h-6 bg-blue-600 rounded-sm"/>
+                    <h2 className="text-[17px] font-extrabold text-slate-900">2. 주요 실적</h2>
+                  </div>
+                  <div className="space-y-4">
+                    {(modalReport.items||[]).map((it,i)=>(
+                      <div key={i} className="pl-1">
+                        <div className="text-[15px] font-bold text-slate-900 mb-1">{koLetter(i)}. {it.label}</div>
+                        <div className="text-[13px] text-slate-700 pl-5">- {it.label} <b className="text-slate-900">{it.count}{it.unit}</b> {it.status}</div>
+                      </div>
+                    ))}
+                    {(!modalReport.items||modalReport.items.length===0) && <div className="text-[13px] text-slate-400 italic">실적 항목이 인식되지 않았습니다</div>}
+                  </div>
+                </div>
+                {/* 3. 차주 계획 */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-3.5">
+                    <div className="w-1 h-6 bg-blue-600 rounded-sm"/>
+                    <h2 className="text-[17px] font-extrabold text-slate-900">3. 차주 계획</h2>
+                  </div>
+                  <div className="space-y-1.5 pl-1">
+                    {(modalReport.plans||[]).map((p,i)=>(<div key={i} className="text-[13px] text-slate-700">- {p}</div>))}
+                  </div>
+                </div>
+                {/* Disclaimer */}
+                <div className="bg-amber-50 border-l-4 border-amber-400 rounded p-3.5 text-[12px] text-amber-900">
+                  ⚠ 본 문서는 KOGAS-Tech AI가 자동 생성한 초안입니다. 반드시 작성자의 검토를 거친 후 사용하시기 바랍니다.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
