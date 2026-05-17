@@ -5085,7 +5085,62 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   const [showNotice,setShowNotice]=useState(true);
   const [convs,setConvs]=useState(KOGAS_RECENT_CONVS);
   const [activeConvId,setActiveConvId]=useState(null);
+  const [rightView,setRightView]=useState('default'); // 'default' | 'source' | 'report'
+  const [viewingSource,setViewingSource]=useState(null);
+  const [viewingReport,setViewingReport]=useState(null);
   const endRef=useRef(null);
+  const openSource=(s)=>{setViewingSource(s);setRightView('source');setShowRight(true);};
+  const openReport=(r)=>{setViewingReport(r);setRightView('report');setShowRight(true);};
+  const closeViewer=()=>{setRightView('default');setViewingSource(null);setViewingReport(null);};
+
+  const renderMarkdownKogas=(text)=>{
+    if(!text)return null;
+    const lines=text.split('\n');
+    const out=[];
+    let i=0;
+    while(i<lines.length){
+      const line=lines[i];
+      if(line.trim().startsWith('|')&&line.trim().endsWith('|')){
+        const tblLines=[];
+        while(i<lines.length && lines[i].trim().startsWith('|')){tblLines.push(lines[i].trim());i++;}
+        const cells=tblLines.filter(l=>!/^\|[-:\s|]+\|$/.test(l)).map(r=>r.split('|').slice(1,-1).map(c=>c.trim()));
+        if(cells.length){
+          const [header,...body]=cells;
+          out.push(
+            <div key={`tbl-${i}`} className="my-2 border border-slate-200 rounded-lg overflow-hidden">
+              <table className="w-full text-[12px]">
+                <thead className="bg-sky-50"><tr>{header.map((c,j)=>(<th key={j} className="px-3 py-1.5 text-left font-bold text-slate-800 border-b border-slate-200" dangerouslySetInnerHTML={{__html:c.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}}/>))}</tr></thead>
+                <tbody>{body.map((r,ri)=>(<tr key={ri} className="border-b border-slate-100 last:border-b-0 odd:bg-white even:bg-slate-50/40">{r.map((c,ci)=>(<td key={ci} className="px-3 py-1.5 align-top whitespace-pre-line" dangerouslySetInnerHTML={{__html:c.replace(/\*\*(.+?)\*\*/g,'<b class="text-slate-900">$1</b>')}}/>))}</tr>))}</tbody>
+              </table>
+            </div>
+          );
+        }
+        continue;
+      }
+      if(line.startsWith('**')&&line.endsWith('**')) out.push(<div key={i} className="font-bold my-1 text-slate-900">{line.replace(/\*\*/g,'')}</div>);
+      else if(line.startsWith('- ')) out.push(<div key={i} className="ml-3 flex items-start text-[13px]"><span className="mr-1.5 text-slate-400 shrink-0">•</span><span dangerouslySetInnerHTML={{__html:line.slice(2).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}}/></div>);
+      else if(/^\d+\./.test(line)) out.push(<div key={i} className="ml-3 flex items-start text-[13px]"><span className="mr-1.5 text-slate-500 shrink-0 font-medium">{line.match(/^\d+/)[0]}.</span><span dangerouslySetInnerHTML={{__html:line.replace(/^\d+\.\s*/,'').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}}/></div>);
+      else if(line.trim()==='') out.push(<div key={i} className="h-2"/>);
+      else out.push(<div key={i} className="text-[13px] leading-relaxed text-slate-700" dangerouslySetInnerHTML={{__html:line.replace(/\*\*(.+?)\*\*/g,'<b class="text-slate-900">$1</b>')}}/>);
+      i++;
+    }
+    return out;
+  };
+
+  const renderHighlightedExcerpt=(text,highlights)=>{
+    if(!text)return null;
+    const list=highlights||[];
+    return text.split('\n').map((line,i)=>{
+      if(!list.length||!line)return <div key={i} className="text-[12px] leading-relaxed text-slate-700 min-h-[1em]">{line||' '}</div>;
+      const re=new RegExp('('+list.map(h=>h.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','g');
+      const parts=line.split(re);
+      return (
+        <div key={i} className="text-[12px] leading-relaxed text-slate-700 min-h-[1em]">
+          {parts.map((p,j)=>list.includes(p)?<mark key={j} className="bg-yellow-200 text-slate-900 font-bold px-0.5 rounded">{p}</mark>:<span key={j}>{p}</span>)}
+        </div>
+      );
+    });
+  };
   useEffect(()=>{endRef.current?.scrollIntoView({behavior:'smooth'});},[messages,sending]);
 
   const currentRun=KOGAS_WORK_RUNS.find(r=>r.id===activeWorkRun);
@@ -5133,22 +5188,22 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
 
   const renderAssistant=(data)=>{
     if(!data)return null;
-    if(data.type==='plain'||data.type==='rag')return <div className="text-gray-800">{renderMarkdown(data.content)}</div>;
+    if(data.type==='plain'||data.type==='rag')return <div className="text-slate-800">{renderMarkdownKogas(data.content)}</div>;
     if(data.type==='table')return (
       <div>
         <div className="flex items-center space-x-2 mb-1.5">
-          <div className="w-6 h-6 rounded bg-blue-50 flex items-center justify-center text-blue-600"><FileBarChart size={13}/></div>
-          <div className="font-bold text-[15px]">{data.title}</div>
+          <div className="w-6 h-6 rounded bg-sky-50 flex items-center justify-center text-sky-600"><FileBarChart size={13}/></div>
+          <div className="font-bold text-[15px] text-slate-900">{data.title}</div>
         </div>
-        <div className="text-xs text-gray-500 mb-3">{data.subtitle}</div>
-        <div className="flex items-center mb-2"><div className="w-1 h-4 bg-blue-500 rounded mr-1.5"/><div className="font-bold text-sm">{data.sectionTitle}</div></div>
-        <div className="border rounded-lg overflow-hidden">
+        <div className="text-xs text-slate-500 mb-3">{data.subtitle}</div>
+        <div className="flex items-center mb-2"><div className="w-1 h-4 bg-sky-500 rounded mr-1.5"/><div className="font-bold text-sm text-slate-900">{data.sectionTitle}</div></div>
+        <div className="border border-slate-200 rounded-lg overflow-hidden">
           <table className="w-full text-[13px]">
-            <thead className="bg-blue-50/70 text-blue-900"><tr>{data.table.cols.map((c,i)=>(<th key={i} className="px-3 py-2 text-left font-bold border-b">{c}</th>))}</tr></thead>
+            <thead className="bg-sky-50 text-slate-800"><tr>{data.table.cols.map((c,i)=>(<th key={i} className="px-3 py-2 text-left font-bold border-b border-slate-200">{c}</th>))}</tr></thead>
             <tbody>{data.table.rows.map((r,i)=>(
-              <tr key={i} className={i%2===0?'bg-white':'bg-gray-50/40'}>
-                <td className="px-3 py-2 font-medium border-b align-top whitespace-nowrap">{r[0]}</td>
-                <td className="px-3 py-2 border-b align-top whitespace-pre-line">{r[1]}</td>
+              <tr key={i} className={i%2===0?'bg-white':'bg-slate-50/40'}>
+                <td className="px-3 py-2 font-medium border-b border-slate-100 align-top whitespace-nowrap text-slate-900">{r[0]}</td>
+                <td className="px-3 py-2 border-b border-slate-100 align-top whitespace-pre-line text-slate-700">{r[1]}</td>
               </tr>
             ))}</tbody>
           </table>
@@ -5157,28 +5212,33 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
     );
     if(data.type==='report')return (
       <div>
-        <div className="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3 mb-3">
-          <div className="flex items-center space-x-1.5 mb-2"><CheckCircle size={14} className="text-emerald-600"/><div className="font-bold text-sm">{data.title}</div></div>
-          <div className="space-y-1.5">
+        <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 mb-3">
+          <div className="flex items-center space-x-1.5 mb-2.5"><CheckCircle size={14} className="text-emerald-600"/><div className="font-bold text-sm text-slate-900">{data.title}</div></div>
+          <div className="space-y-2">
             {data.steps.map((s,i)=>(
               <div key={i} className="flex items-start space-x-2">
                 <CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/>
-                <div><div className="text-[13px] font-medium">{s.label}</div><div className="text-[11px] text-gray-500">{s.sub}</div></div>
+                <div><div className="text-[13px] font-medium text-slate-800">{s.label}</div><div className="text-[11px] text-slate-500">{s.sub}</div></div>
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-white border rounded-lg p-4 text-[13px] mb-3 font-mono">{renderMarkdown(data.preview)}</div>
-        <div className="bg-gradient-to-br from-sky-50 to-blue-50 border-2 border-sky-200 rounded-xl p-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 text-[13px] mb-3">{renderMarkdownKogas(data.preview)}</div>
+        <div className="bg-gradient-to-br from-emerald-50 to-sky-50 border border-emerald-200 rounded-xl p-3.5">
           <div className="flex items-start space-x-3">
-            <div className="w-12 h-16 rounded bg-white border flex flex-col items-center justify-center shrink-0 shadow-sm"><FileText size={20} className="text-sky-600"/><span className="text-[8px] font-bold text-sky-600 mt-1">PDF</span></div>
+            <div className="w-11 h-14 rounded bg-white border border-slate-200 flex flex-col items-center justify-center shrink-0 shadow-sm">
+              <FileText size={18} className="text-emerald-600"/>
+              <span className="text-[8px] font-bold text-emerald-600 mt-0.5">PDF</span>
+            </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[11px] text-sky-700 font-bold">한국가스기술공사</div>
-              <div className="font-bold text-sm mt-0.5">{data.docTitle}</div>
-              <div className="text-[11px] text-gray-500 mt-0.5">{data.docSubtitle}</div>
-              <div className="flex space-x-2 mt-3">
-                <button onClick={()=>toast('문서 미리보기를 엽니다','info')} className="px-3 py-1.5 border border-sky-300 text-sky-700 rounded-lg text-xs font-bold flex items-center hover:bg-sky-50"><Eye size={12} className="mr-1"/>문서 미리보기</button>
-                <button onClick={()=>toast('보고서가 다운로드됩니다')} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center hover:bg-emerald-600"><Download size={12} className="mr-1"/>다운로드</button>
+              <div className="flex items-center space-x-1.5">
+                <span className="font-bold text-sm text-slate-900">{data.docTitle}</span>
+                <span className="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">생성 완료</span>
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">수신: 정비기술처장 · 작성: 김인훈 과장 · {data.docSubtitle}</div>
+              <div className="flex space-x-2 mt-2.5">
+                <button onClick={()=>openReport(data)} className="px-3 py-1.5 border border-emerald-300 text-emerald-700 rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-50"><Eye size={11} className="mr-1"/>문서 미리보기</button>
+                <button onClick={()=>toast('보고서가 다운로드됩니다')} className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-[11px] font-bold flex items-center hover:bg-emerald-600 shadow-sm"><Download size={11} className="mr-1"/>다운로드</button>
               </div>
             </div>
           </div>
@@ -5186,6 +5246,28 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
       </div>
     );
     return null;
+  };
+
+  const renderSourceChips=(sources)=>{
+    if(!sources||!sources.length)return null;
+    return (
+      <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
+        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">참조 문서 ({sources.length})</div>
+        {sources.map((s,i)=>(
+          <div key={i} className="group flex items-center bg-white ring-1 ring-slate-200 hover:ring-sky-300 rounded-lg px-2 py-1.5 transition-colors">
+            <span className="w-4 h-4 bg-slate-800 text-white rounded text-[9px] font-bold flex items-center justify-center mr-2 shrink-0">{i+1}</span>
+            <button onClick={()=>openSource(s)} className="flex-1 min-w-0 text-left flex items-center space-x-1.5">
+              <FileText size={11} className="text-slate-400 shrink-0"/>
+              <span className="text-[11px] font-medium truncate text-slate-800">{s.doc}</span>
+              <span className="text-[10px] text-slate-400 shrink-0">{s.page}p</span>
+            </button>
+            <span className="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold mr-1.5">유사도 {s.similarity}%</span>
+            <button onClick={()=>openSource(s)} className="text-[10px] bg-sky-50 text-sky-700 hover:bg-sky-100 px-2 py-0.5 rounded font-bold mr-1"><Eye size={9} className="inline mr-0.5 -mt-0.5"/>미리</button>
+            <button onClick={()=>toast(`${s.doc} 다운로드`)} className="text-[10px] bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-2 py-0.5 rounded font-bold"><Download size={9} className="inline mr-0.5 -mt-0.5"/>다운로드</button>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const extLabel=ext=>ext==='pdf'?'PDF':ext==='docx'?'DOC':ext==='xlsx'?'XLS':ext.toUpperCase();
@@ -5380,15 +5462,16 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                       </div>
                     ) : (
                       <div className="flex-1 max-w-[85%]">
-                        <div className="bg-white border rounded-2xl rounded-tl-md px-5 py-4 shadow-sm">
+                        <div className="bg-white ring-1 ring-slate-200 rounded-2xl rounded-tl-md px-5 py-4 shadow-sm">
                           {renderAssistant(m.data)}
+                          {renderSourceChips(m.data?.sources)}
                         </div>
                         <div className="flex items-center mt-1.5 px-1 space-x-0.5">
-                          <button onClick={()=>{navigator.clipboard?.writeText(JSON.stringify(m.data));toast('복사되었습니다');}} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Copy size={11}/></button>
-                          <button onClick={()=>toast('좋은 답변으로 평가했습니다')} className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded"><ThumbsUp size={11}/></button>
-                          <button onClick={()=>toast('피드백 접수','info')} className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"><ThumbsDown size={11}/></button>
-                          <button onClick={()=>toast('재생성 중...','info')} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><RotateCcw size={11}/></button>
-                          <span className="text-[10px] text-gray-400 ml-auto">{m.time}</span>
+                          <button onClick={()=>{navigator.clipboard?.writeText(JSON.stringify(m.data));toast('복사되었습니다');}} className="p-1 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"><Copy size={11}/></button>
+                          <button onClick={()=>toast('좋은 답변으로 평가했습니다')} className="p-1 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded"><ThumbsUp size={11}/></button>
+                          <button onClick={()=>toast('피드백 접수','info')} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><ThumbsDown size={11}/></button>
+                          <button onClick={()=>toast('재생성 중...','info')} className="p-1 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"><RotateCcw size={11}/></button>
+                          <span className="text-[10px] text-slate-400 ml-auto">{m.time}</span>
                         </div>
                       </div>
                     )}
@@ -5463,22 +5546,140 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
             {/* Header */}
             <div className="px-4 py-3 bg-white">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Database size={14} className="text-sky-600"/>
-                  <span className="font-bold text-[13px] text-slate-900">RAG 연동 문서</span>
-                  <span className="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full ring-1 ring-emerald-200/60 flex items-center"><span className="w-1 h-1 rounded-full bg-emerald-500 mr-1"/>VectorDB 연결됨</span>
+                <div className="flex items-center space-x-2 min-w-0">
+                  {rightView==='default' ? <>
+                    <Database size={14} className="text-sky-600 shrink-0"/>
+                    <span className="font-bold text-[13px] text-slate-900">RAG 연동 문서</span>
+                    <span className="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full ring-1 ring-emerald-200/60 flex items-center"><span className="w-1 h-1 rounded-full bg-emerald-500 mr-1"/>VectorDB 연결됨</span>
+                  </> : (
+                    <>
+                      <button onClick={closeViewer} className="p-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded -ml-1"><ArrowLeft size={13}/></button>
+                      <span className="font-bold text-[13px] text-slate-900 truncate">{rightView==='source'?'참조 문서 보기':'보고서 미리보기'}</span>
+                    </>
+                  )}
                 </div>
-                <button onClick={()=>setShowRight(false)} className="p-0.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><X size={13}/></button>
+                <button onClick={()=>setShowRight(false)} className="p-0.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded shrink-0"><X size={13}/></button>
               </div>
-              {/* Sub-tabs */}
-              <div className="flex bg-slate-100 rounded-xl p-1 mt-3">
-                {['문서 목록','연동 도구','내 RAG'].map(t=>(
-                  <button key={t} onClick={()=>setRightTab(t)} className={`flex-1 px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all ${rightTab===t?'bg-white shadow-sm text-sky-700':'text-slate-500 hover:text-slate-700'}`}>{t}</button>
-                ))}
-              </div>
+              {/* Sub-tabs (default only) */}
+              {rightView==='default' && (
+                <div className="flex bg-slate-100 rounded-xl p-1 mt-3">
+                  {['문서 목록','연동 도구','내 RAG'].map(t=>(
+                    <button key={t} onClick={()=>setRightTab(t)} className={`flex-1 px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all ${rightTab===t?'bg-white shadow-sm text-sky-700':'text-slate-500 hover:text-slate-700'}`}>{t}</button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Body */}
+            {/* SOURCE VIEWER */}
+            {rightView==='source' && viewingSource && (
+              <div className="flex-1 overflow-y-auto bg-slate-50/40">
+                <div className="p-4">
+                  {/* Doc meta */}
+                  <div className="bg-white rounded-xl ring-1 ring-slate-200 overflow-hidden mb-3">
+                    <div className="px-3 py-2.5 border-b border-slate-100 flex items-center space-x-2">
+                      <div className="w-9 h-11 rounded bg-red-50 border border-red-100 flex flex-col items-center justify-center shrink-0">
+                        <FileText size={14} className="text-red-500"/>
+                        <span className="text-[7px] font-bold text-red-500 mt-0.5">PDF</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[11px] font-bold text-slate-900 truncate">{viewingSource.doc}</div>
+                        <div className="text-[9px] text-slate-400 mt-0.5">2025.11.20 · 정비기술처</div>
+                        <div className="flex items-center space-x-1 mt-1">
+                          <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold">p.{viewingSource.page}</span>
+                          <span className="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold">유사도 {viewingSource.similarity}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex">
+                      <button onClick={()=>toast('원본 PDF를 새 창에서 엽니다','info')} className="flex-1 py-1.5 text-[10px] font-bold text-sky-700 hover:bg-sky-50 border-r border-slate-100 flex items-center justify-center"><ExternalLink size={10} className="mr-1"/>원본 열기</button>
+                      <button onClick={()=>toast(`${viewingSource.doc} 다운로드`)} className="flex-1 py-1.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-50 flex items-center justify-center"><Download size={10} className="mr-1"/>다운로드</button>
+                    </div>
+                  </div>
+                  {/* Highlighted excerpt */}
+                  <div className="bg-white rounded-xl ring-1 ring-slate-200 p-3.5">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center"><Sparkles size={9} className="mr-1 text-yellow-500"/>답변 관련 본문</div>
+                    <div className="space-y-0.5">
+                      {renderHighlightedExcerpt(viewingSource.excerpt,viewingSource.highlights)}
+                    </div>
+                  </div>
+                  <div className="mt-3 text-[9px] text-slate-400 text-center">노란색 하이라이트가 답변에 활용된 핵심 구간입니다</div>
+                </div>
+              </div>
+            )}
+
+            {/* REPORT VIEWER */}
+            {rightView==='report' && viewingReport && (
+              <div className="flex-1 overflow-y-auto bg-slate-100/40">
+                <div className="p-4">
+                  <div className="bg-white rounded-xl ring-1 ring-slate-200 shadow-sm overflow-hidden">
+                    {/* Letterhead */}
+                    <div className="border-b border-slate-200 px-5 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-extrabold text-sm shadow">K</div>
+                        <div>
+                          <div className="font-extrabold text-[13px] text-slate-900">한국가스기술공사</div>
+                          <div className="text-[8px] text-slate-400 tracking-wider">KOGAS TECH CORPORATION</div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Header table */}
+                    <div className="px-5 py-3 text-[11px]">
+                      <table className="w-full">
+                        <tbody className="divide-y divide-slate-100">
+                          {[['문서 번호','KGTC-정비기술처-2026-024'],['수 신','정비기술처장'],['일 시','2026. 02. 26.'],['보 존 기 간','3년'],['작 성 부 서','정비기술처'],['작 성 자','김인훈 과장']].map(([k,v],i)=>(
+                            <tr key={i}>
+                              <td className="py-1 pr-3 text-slate-500 w-24">{k}</td>
+                              <td className="py-1 font-medium text-slate-800">{v}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {/* Title */}
+                    <div className="border-t border-b-2 border-slate-300 px-5 py-3 text-center">
+                      <div className="text-[10px] text-slate-400 tracking-widest mb-1">제 목</div>
+                      <div className="font-extrabold text-[14px] text-slate-900">{viewingReport.docTitle}</div>
+                    </div>
+                    {/* Body */}
+                    <div className="px-5 py-4 text-[11px] space-y-3">
+                      <div>
+                        <div className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded mb-1.5">1. 보고 개요</div>
+                        <table className="w-full ring-1 ring-slate-200 rounded text-[10px]">
+                          <tbody className="divide-y divide-slate-100">
+                            <tr><td className="px-2 py-1 bg-slate-50 w-20 text-slate-500">보고 기간</td><td className="px-2 py-1">2026. 02. 17.(월) ~ 02. 21.(금)</td></tr>
+                            <tr><td className="px-2 py-1 bg-slate-50 text-slate-500">담당 부서</td><td className="px-2 py-1">정비기술처</td></tr>
+                            <tr><td className="px-2 py-1 bg-slate-50 text-slate-500">작성자</td><td className="px-2 py-1">김인훈 과장</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded mb-1.5">2. 주요 실적</div>
+                        <div className="ml-1 space-y-1">
+                          <div className="text-[10px]">가. <b>설비 점검 (PSV 정기 점검)</b></div>
+                          <div className="ml-3 text-[10px] text-slate-600">- 평택기지 PSV 5건 정기 점검 완료 (Overhaul / POP Test)</div>
+                          <div className="text-[10px]">나. <b>배관 누설 탐지</b></div>
+                          <div className="ml-3 text-[10px] text-slate-600">- 누설 의심 구간 2건 발견 및 보수 완료</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded mb-1.5">3. 차주 계획</div>
+                        <div className="ml-3 text-[10px] text-slate-600 space-y-0.5">
+                          <div>- 6호기 ~ 10호기 PSV 정기 점검 예정 (5건)</div>
+                          <div>- BOG 벤팅 밸브 3년 주기 정밀 진단 (2건)</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 mt-3">
+                    <button onClick={()=>toast('인쇄 미리보기','info')} className="flex-1 py-2 border border-slate-300 text-slate-700 rounded-lg text-[11px] font-bold hover:bg-white"><Eye size={11} className="inline mr-1"/>인쇄</button>
+                    <button onClick={()=>toast('PDF로 다운로드합니다')} className="flex-1 py-2 bg-emerald-500 text-white rounded-lg text-[11px] font-bold hover:bg-emerald-600 shadow-sm"><Download size={11} className="inline mr-1"/>PDF 다운로드</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* DEFAULT body */}
+            {rightView==='default' && (
             <div className="flex-1 overflow-y-auto p-4 bg-slate-50/40">
               {rightTab==='내 RAG' && (
                 <>
@@ -5573,13 +5774,14 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                 </div>
               )}
             </div>
+            )}
           </aside>
         )}
 
         {/* Reopen panel button */}
         {!showRight && (
-          <button onClick={()=>setShowRight(true)} className="absolute right-0 top-20 bg-white border border-r-0 rounded-l-lg px-1 py-3 shadow-md hover:bg-gray-50" title="RAG 패널 열기">
-            <Database size={14} className="text-blue-500"/>
+          <button onClick={()=>setShowRight(true)} className="absolute right-4 top-20 bg-white ring-1 ring-slate-200 rounded-xl px-2 py-2 shadow-md hover:bg-sky-50" title="RAG 패널 열기">
+            <Database size={14} className="text-sky-500"/>
           </button>
         )}
       </div>
