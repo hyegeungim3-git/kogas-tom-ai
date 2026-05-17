@@ -10,7 +10,9 @@ import {
   FileBarChart, Table2, UserCog, Image as ImageIcon, Sparkles, GitBranch, CircleDot,
   Workflow, ArrowRight, Gauge, Package, Unplug, History, TestTube2, SlidersHorizontal,
   TrendingUp, ThumbsUp, ThumbsDown, Edit3, Megaphone, FolderTree, KeyRound, UserPlus,
-  AlertTriangle, Link2, Star
+  AlertTriangle, Link2, Star, Mic, ArrowUp, Wand2, Compass, Languages, Mail, NotebookPen,
+  PenLine, FileSpreadsheet, BarChart3, LineChart, MoreHorizontal, ArrowLeft, Bookmark,
+  Pin, PinOff, Smile, Volume2, Maximize2, PanelLeftClose, PanelRightClose, Camera
 } from 'lucide-react';
 
 // ==================== MOCK DATA ====================
@@ -3669,6 +3671,1239 @@ const UserPage = () => {
   );
 };
 
+// ==================== SERVICE MOCK DATA ====================
+const SERVICE_SUGGESTED_PROMPTS = [
+  {icon:Shield,t:'안전 규정 검색',q:'LNG 저장탱크 정기 점검 주기와 점검 항목을 알려줘',cat:'안전',color:'bg-red-50 text-red-700 border-red-200'},
+  {icon:Users,t:'HR 규정 질의',q:'2026년 연차 사용 기준과 잔여 연차 이월 규정 정리해줘',cat:'HR',color:'bg-blue-50 text-blue-700 border-blue-200'},
+  {icon:FileText,t:'보고서 작성',q:'1분기 가스 설비 점검 현황을 보고서 형식으로 작성해줘',cat:'문서',color:'bg-purple-50 text-purple-700 border-purple-200'},
+  {icon:BarChart3,t:'데이터 분석',q:'첨부한 점검 이력 CSV에서 이상 패턴을 찾아줘',cat:'분석',color:'bg-green-50 text-green-700 border-green-200'},
+  {icon:Languages,t:'기술문서 번역',q:'다음 기술 매뉴얼을 한국어로 번역해줘',cat:'유틸',color:'bg-yellow-50 text-yellow-700 border-yellow-200'},
+  {icon:NotebookPen,t:'회의록 정리',q:'첨부한 회의 녹취록을 결정사항/액션아이템 중심으로 정리해줘',cat:'유틸',color:'bg-pink-50 text-pink-700 border-pink-200'},
+];
+
+const SERVICE_AGENT_CATEGORIES = [
+  {id:'all',label:'전체',count:24},
+  {id:'safety',label:'안전·점검',count:6},
+  {id:'hr',label:'HR·총무',count:4},
+  {id:'legal',label:'법무·계약',count:3},
+  {id:'tech',label:'기술·연구',count:5},
+  {id:'finance',label:'재무·회계',count:3},
+  {id:'edu',label:'교육·문서',count:3},
+];
+
+const SERVICE_FEATURED_AGENTS = [
+  {id:'AGT-001',name:'안전규정 검색 에이전트',desc:'사내 안전 규정/매뉴얼 즉시 검색·요약. 출처 청크 인용.',cat:'safety',calls:342,rating:4.7,model:'GPT-OSS-120B',pinned:true,badge:'인기',iconBg:'from-red-500 to-rose-500'},
+  {id:'AGT-002',name:'설비 진단 어시스턴트',desc:'IoT 센서 + 설비 이력 분석으로 점검 절차 자동 안내.',cat:'tech',calls:189,rating:4.6,model:'Llama-3-Kor',pinned:false,badge:'추천',iconBg:'from-blue-500 to-cyan-500'},
+  {id:'AGT-003',name:'HR 질의응답 봇',desc:'연차, 복리후생, 인사 규정. 24시간 즉시 응답.',cat:'hr',calls:567,rating:4.8,model:'EXAONE-3.0',pinned:true,badge:'베스트',iconBg:'from-emerald-500 to-teal-500'},
+  {id:'AGT-004',name:'계약서 검토 에이전트',desc:'리스크 조항 자동 식별·정리, 법무팀 HITL 연동.',cat:'legal',calls:45,rating:4.9,model:'GPT-OSS-120B',pinned:false,badge:'신규',iconBg:'from-purple-500 to-fuchsia-500'},
+  {id:'AGT-006',name:'기술 교육 튜터',desc:'신입사원 및 기술직 교육 질의응답. 단계별 설명.',cat:'edu',calls:231,rating:4.5,model:'EXAONE-3.0',pinned:true,badge:'',iconBg:'from-orange-500 to-amber-500'},
+  {id:'AGT-007',name:'비상 대응 가이드',desc:'가스 누출 등 비상 상황 실시간 대응 절차 안내.',cat:'safety',calls:12,rating:5.0,model:'GPT-OSS-120B',pinned:false,badge:'필수',iconBg:'from-red-600 to-orange-600'},
+  {id:'AGT-008',name:'회계전표 자동 작성',desc:'ERP 연동, 업무 지시 → 전표 자동 생성 (HITL).',cat:'finance',calls:78,rating:4.4,model:'GPT-OSS-120B',pinned:false,badge:'신규',iconBg:'from-indigo-500 to-blue-600'},
+  {id:'AGT-009',name:'영문 기술문서 번역',desc:'설비 매뉴얼 영↔한 전문 번역, 용어집 자동 적용.',cat:'edu',calls:154,rating:4.6,model:'GPT-OSS-120B',pinned:false,badge:'',iconBg:'from-yellow-500 to-orange-500'},
+  {id:'AGT-010',name:'위험성 평가 도우미',desc:'중대재해법 대응 위험성 평가서 초안 자동 작성.',cat:'safety',calls:67,rating:4.7,model:'Llama-3-Kor',pinned:false,badge:'',iconBg:'from-rose-500 to-red-600'},
+  {id:'AGT-011',name:'예산 집행 분석',desc:'부서별 예산 집행 현황 자동 리포팅·이상치 알림.',cat:'finance',calls:32,rating:4.3,model:'EXAONE-3.0',pinned:false,badge:'',iconBg:'from-teal-500 to-emerald-600'},
+  {id:'AGT-012',name:'사내 검색 도우미',desc:'사내 문서/그룹웨어 통합 검색 + 위치 안내.',cat:'edu',calls:412,rating:4.5,model:'EXAONE-3.0',pinned:true,badge:'',iconBg:'from-sky-500 to-indigo-500'},
+];
+
+const SERVICE_RECENT_CONVS = [
+  {id:1,title:'LNG 저장탱크 안전밸브 설정압력',agent:'안전규정 검색 에이전트',time:'14:32',preview:'LNG 저장탱크의 안전밸브는 설계압력의 110%로 설정되며...',pinned:true},
+  {id:2,title:'2026 연차 사용 가이드',agent:'HR 질의응답 봇',time:'어제',preview:'근로기준법 60조에 따라 1년 미만 근로자는 1개월 개근 시...',pinned:false},
+  {id:3,title:'가스 누출 비상 대응 절차',agent:'비상 대응 가이드',time:'어제',preview:'1단계 누출 감지 시 즉시 차단 밸브 폐쇄 후 환기...',pinned:true},
+  {id:4,title:'1분기 안전점검 보고서 초안',agent:'안전규정 검색 에이전트',time:'2일 전',preview:'1분기 안전점검 결과 총 124건의 점검을 수행했으며...',pinned:false},
+  {id:5,title:'수의계약 한도액 기준',agent:'계약서 검토 에이전트',time:'1주 전',preview:'수의계약은 추정가격이 2천만원 이하인 경우에 한하여...',pinned:false},
+  {id:6,title:'중대재해처벌법 대응 가이드',agent:'위험성 평가 도우미',time:'1주 전',preview:'중대재해처벌법 시행에 따라 사업주는 안전보건관리체계를...',pinned:false},
+  {id:7,title:'신입사원 안전교육 자료',agent:'기술 교육 튜터',time:'2주 전',preview:'한국가스기술공사 신입사원 안전교육은 4주 과정으로...',pinned:false},
+];
+
+const SERVICE_SAMPLE_CHAT = [
+  {role:'user',content:'LNG 저장탱크 정기 점검 주기와 점검 항목을 알려줘',time:'14:32'},
+  {role:'assistant',content:`LNG 저장탱크의 정기 점검은 「고압가스 안전관리법 시행규칙」 제29조 및 사내 「LNG 설비 유지관리 기준 v2.1」에 따라 다음과 같이 수행됩니다.
+
+**점검 주기**
+- **일상 점검**: 매일 1회 (운영 부서 자체 점검)
+- **정기 점검**: 매월 1회 (안전관리부 합동 점검)
+- **정밀 점검**: 매 6개월 1회 (외부 전문 기관 의뢰)
+- **개방 점검**: 매 4년 1회 (탱크 내부 진입 검사)
+
+**주요 점검 항목**
+1. 외관 검사 — 균열, 부식, 단열재 손상 여부
+2. 안전밸브 작동 시험 — 설정압력의 110% ± 3%
+3. 가스 누출 감지기 작동 시험
+4. 액위계·온도계·압력계 교정 상태
+5. 접지 저항 측정 (10Ω 이하)
+6. 전기 설비 절연 저항 측정
+
+**관련 규정 위반 시**: 안전관리법 제43조에 따라 즉시 운영 중단 및 보수 조치가 필요합니다.`,time:'14:32',sources:[
+    {title:'LNG 설비 유지관리 기준 v2.1.pdf',page:24,chunk:'제3장 정기 점검 항목 및 주기 ...',score:0.94},
+    {title:'고압가스 안전관리법 시행규칙.pdf',page:17,chunk:'제29조 (정기 검사) ① 저장 설비는 ...',score:0.89},
+    {title:'2026 안전관리 매뉴얼 v2.1.pdf',page:62,chunk:'LNG 탱크 점검 체크리스트 ...',score:0.81},
+  ]},
+];
+
+const SERVICE_REPORT_TEMPLATES = [
+  {id:'rpt-safety',name:'안전 점검 보고서',desc:'현장 점검 결과를 정형화된 보고서로 작성',icon:Shield,color:'from-red-500 to-rose-500',sections:['점검 개요','점검 결과','발견 사항','조치 계획'],time:'3분',uses:248},
+  {id:'rpt-monthly',name:'월간 운영 보고',desc:'KPI/실적/주요 이슈를 월간 보고 형식으로 정리',icon:BarChart3,color:'from-blue-500 to-indigo-500',sections:['핵심 성과','상세 실적','이슈 및 대응','다음 달 계획'],time:'5분',uses:189},
+  {id:'rpt-risk',name:'위험성 평가서',desc:'중대재해처벌법 대응 위험성 평가 자동 작성',icon:AlertTriangle,color:'from-orange-500 to-amber-500',sections:['평가 대상','위험 요인','심각도/빈도','감소 대책'],time:'7분',uses:124},
+  {id:'rpt-meeting',name:'회의록',desc:'녹취록/메모를 회의록 양식으로 정리',icon:NotebookPen,color:'from-emerald-500 to-teal-500',sections:['참석자','안건','결정 사항','액션 아이템'],time:'2분',uses:412},
+  {id:'rpt-edu',name:'교육 자료',desc:'기술 주제를 슬라이드용 교육자료로 변환',icon:BookOpen,color:'from-purple-500 to-fuchsia-500',sections:['학습 목표','핵심 개념','사례','퀴즈'],time:'4분',uses:89},
+  {id:'rpt-rfp',name:'제안 요약',desc:'제안서/RFP 문서를 핵심 사항 중심으로 요약',icon:FileText,color:'from-cyan-500 to-blue-500',sections:['배경','요구사항','평가 기준','일정/예산'],time:'5분',uses:67},
+];
+
+const SERVICE_IMAGE_STYLES = [
+  {id:'photo',name:'사실적 사진',desc:'실사 풍 고해상도',sample:'from-slate-500 to-zinc-700'},
+  {id:'illust',name:'일러스트',desc:'벡터 일러스트 스타일',sample:'from-pink-400 to-orange-400'},
+  {id:'diagram',name:'다이어그램',desc:'기술 다이어그램/도면',sample:'from-sky-400 to-blue-600'},
+  {id:'info',name:'인포그래픽',desc:'데이터 시각화 풍',sample:'from-emerald-400 to-teal-600'},
+  {id:'3d',name:'3D 렌더',desc:'3D 모델 렌더링',sample:'from-violet-500 to-purple-700'},
+  {id:'sketch',name:'스케치',desc:'손그림/스케치 풍',sample:'from-amber-300 to-orange-500'},
+];
+
+const SERVICE_RECENT_IMAGES = [
+  {id:1,prompt:'LNG 저장탱크 안전 점검 절차 인포그래픽',style:'info',ratio:'16:9',time:'10분 전',gradient:'from-emerald-400 via-teal-500 to-cyan-600'},
+  {id:2,prompt:'가스 배관 단면 다이어그램, 한국어 라벨',style:'diagram',ratio:'4:3',time:'2시간 전',gradient:'from-sky-400 via-blue-500 to-indigo-600'},
+  {id:3,prompt:'안전모를 쓴 엔지니어가 설비를 점검하는 모습',style:'photo',ratio:'1:1',time:'어제',gradient:'from-slate-500 via-zinc-600 to-stone-700'},
+  {id:4,prompt:'친환경 에너지 전환 콘셉트 일러스트',style:'illust',ratio:'16:9',time:'어제',gradient:'from-pink-400 via-rose-500 to-orange-500'},
+  {id:5,prompt:'가스 공급망 3D 모델, 청록색 톤',style:'3d',ratio:'4:3',time:'2일 전',gradient:'from-violet-500 via-purple-600 to-fuchsia-700'},
+  {id:6,prompt:'2026 신년 안전 캠페인 포스터',style:'illust',ratio:'9:16',time:'3일 전',gradient:'from-amber-400 via-orange-500 to-red-500'},
+];
+
+const SERVICE_QUICK_TOOLS = [
+  {id:'translate',name:'번역',desc:'한↔영, 한↔일 전문 번역',icon:Languages,color:'bg-blue-50 text-blue-700'},
+  {id:'summary',name:'요약',desc:'긴 글을 핵심 중심으로 요약',icon:FileText,color:'bg-emerald-50 text-emerald-700'},
+  {id:'mail',name:'메일 작성',desc:'상황별 비즈니스 메일 초안',icon:Mail,color:'bg-purple-50 text-purple-700'},
+  {id:'meeting',name:'회의록',desc:'녹취록/메모 → 회의록 정리',icon:NotebookPen,color:'bg-orange-50 text-orange-700'},
+  {id:'proofread',name:'맞춤법 검사',desc:'한글 맞춤법·문장 다듬기',icon:PenLine,color:'bg-pink-50 text-pink-700'},
+  {id:'ideas',name:'아이디어 발산',desc:'주제에 대한 다각도 아이디어',icon:Sparkles,color:'bg-yellow-50 text-yellow-700'},
+];
+
+const SERVICE_BANNER = {
+  greeting:'안녕하세요, 김영빈님',
+  subtitle:'오늘은 어떤 업무를 도와드릴까요?',
+  tip:'💡 새 기능: 이미지 생성 + 보고서 자동 작성이 추가되었습니다',
+};
+
+const SERVICE_SAMPLE_DATA = [
+  {col:'점검일자',vals:['2026-02-01','2026-02-03','2026-02-05','2026-02-07','2026-02-10']},
+  {col:'설비ID',vals:['LNG-T-01','LNG-T-02','LNG-T-01','LNG-P-15','LNG-T-03']},
+  {col:'압력(MPa)',vals:[0.85,0.92,1.12,0.78,0.88]},
+  {col:'온도(°C)',vals:[-162,-160,-145,-163,-161]},
+  {col:'결과',vals:['정상','정상','이상','정상','정상']},
+];
+
+// ==================== SERVICE PAGES ====================
+const ServicePageShell = ({children,padding=true}) => (
+  <div className={`h-full overflow-y-auto ${padding?'p-7':''} animate-in`}>
+    {children}
+  </div>
+);
+
+const ServiceHome = ({onNav,onStartChat}) => {
+  const toast=useToast();
+  return (
+    <ServicePageShell>
+      {/* Hero */}
+      <div className="relative bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 rounded-3xl p-8 mb-6 text-white shadow-lg overflow-hidden">
+        <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-white/10 blur-3xl"/>
+        <div className="absolute -right-32 bottom-0 w-64 h-64 rounded-full bg-cyan-300/20 blur-3xl"/>
+        <div className="relative">
+          <div className="text-3xl font-bold mb-1">{SERVICE_BANNER.greeting} 👋</div>
+          <div className="text-lg opacity-90 mb-4">{SERVICE_BANNER.subtitle}</div>
+          <div className="inline-flex items-center bg-white/20 backdrop-blur rounded-full px-4 py-1.5 text-sm">{SERVICE_BANNER.tip}</div>
+          <div className="mt-6 max-w-3xl">
+            <div className="bg-white rounded-2xl p-2 flex items-center shadow-xl">
+              <input onKeyDown={e=>e.key==='Enter'&&e.target.value&&onStartChat(e.target.value)} placeholder="무엇이든 물어보세요. 예: 가스 누출 시 대응 절차는?" className="flex-1 px-4 py-3 text-gray-800 text-sm outline-none"/>
+              <button className="p-2 text-gray-400 hover:text-gray-700"><Paperclip size={18}/></button>
+              <button className="p-2 text-gray-400 hover:text-gray-700"><Mic size={18}/></button>
+              <button onClick={()=>onStartChat('새 대화')} className="bg-blue-600 text-white p-2.5 rounded-xl hover:bg-blue-700 ml-1"><ArrowUp size={18}/></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Suggested prompts */}
+      <div className="mb-6">
+        <h3 className="font-bold text-gray-900 mb-3 flex items-center"><Sparkles size={16} className="mr-1.5 text-yellow-500"/>추천 프롬프트</h3>
+        <div className="grid grid-cols-3 gap-3">
+          {SERVICE_SUGGESTED_PROMPTS.map((p,i)=>(
+            <div key={i} onClick={()=>onStartChat(p.q)} className={`p-4 rounded-xl border-2 cursor-pointer hover:scale-[1.02] hover:shadow-md transition-all ${p.color}`}>
+              <div className="flex items-center justify-between mb-2"><p.icon size={20}/><span className="text-[10px] font-semibold uppercase opacity-70">{p.cat}</span></div>
+              <div className="font-bold text-sm mb-1">{p.t}</div>
+              <div className="text-xs opacity-80 line-clamp-2">{p.q}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured agents + Recent */}
+      <div className="grid grid-cols-3 gap-5 mb-6">
+        <div className="col-span-2">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-gray-900 flex items-center"><Bot size={16} className="mr-1.5 text-blue-600"/>추천 에이전트</h3>
+            <button onClick={()=>onNav('svc.agents')} className="text-xs text-blue-600 hover:underline flex items-center">전체 보기<ChevronRight size={12}/></button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {SERVICE_FEATURED_AGENTS.slice(0,4).map(a=>(
+              <div key={a.id} onClick={()=>onStartChat('',a)} className="bg-white rounded-xl border p-4 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all">
+                <div className="flex items-start justify-between mb-2">
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${a.iconBg} flex items-center justify-center text-white shrink-0`}><Bot size={18}/></div>
+                  {a.badge&&<span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{a.badge}</span>}
+                </div>
+                <div className="font-bold text-sm mb-1">{a.name}</div>
+                <div className="text-xs text-gray-500 line-clamp-2 mb-2">{a.desc}</div>
+                <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t">
+                  <span className="flex items-center"><Star size={10} className="text-yellow-500 fill-yellow-400 mr-0.5"/>{a.rating}</span>
+                  <span>{a.calls}회 사용</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-gray-900 flex items-center"><History size={16} className="mr-1.5 text-purple-600"/>최근 대화</h3>
+            <button onClick={()=>onNav('svc.history')} className="text-xs text-blue-600 hover:underline">전체</button>
+          </div>
+          <div className="bg-white rounded-xl border divide-y overflow-hidden">
+            {SERVICE_RECENT_CONVS.slice(0,5).map(c=>(
+              <div key={c.id} onClick={()=>onNav('svc.chat')} className="p-3 hover:bg-gray-50 cursor-pointer">
+                <div className="flex items-center justify-between mb-0.5">
+                  <div className="flex items-center space-x-1 min-w-0">
+                    {c.pinned&&<Pin size={10} className="text-blue-500 shrink-0"/>}
+                    <span className="text-sm font-medium truncate">{c.title}</span>
+                  </div>
+                  <span className="text-[10px] text-gray-400 shrink-0 ml-2">{c.time}</span>
+                </div>
+                <div className="text-[11px] text-gray-500 truncate">{c.agent}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick tool cards */}
+      <h3 className="font-bold text-gray-900 mb-3 flex items-center"><Wand2 size={16} className="mr-1.5 text-purple-600"/>빠른 도구</h3>
+      <div className="grid grid-cols-6 gap-3 mb-6">
+        {SERVICE_QUICK_TOOLS.map(t=>(
+          <div key={t.id} onClick={()=>onNav('svc.tools')} className="bg-white rounded-xl border p-4 hover:border-purple-400 hover:shadow-md cursor-pointer transition-all text-center">
+            <div className={`w-10 h-10 rounded-xl ${t.color} flex items-center justify-center mx-auto mb-2`}><t.icon size={18}/></div>
+            <div className="font-bold text-xs">{t.name}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{t.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Today's announcements + ROI banner */}
+      <div className="grid grid-cols-3 gap-5">
+        <div className="col-span-2 bg-white rounded-xl border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-gray-900 flex items-center"><Megaphone size={16} className="mr-1.5 text-orange-600"/>오늘의 공지</h3>
+            <button className="text-xs text-blue-600 hover:underline">전체</button>
+          </div>
+          <div className="divide-y">
+            {[
+              {cat:'점검',title:'시스템 정기 점검 안내 (2/15 02:00~06:00)',date:'2/13',color:'bg-orange-50 text-orange-700'},
+              {cat:'업데이트',title:'신규 모델 Solar-10.7B 서비스 추가',date:'2/10',color:'bg-green-50 text-green-700'},
+              {cat:'공지',title:'GenOS AI 플랫폼 정식 오픈 안내',date:'2/01',color:'bg-blue-50 text-blue-700'},
+            ].map((a,i)=>(
+              <div key={i} className="py-2.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded px-2">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${a.color}`}>{a.cat}</span>
+                  <span className="text-sm font-medium truncate">{a.title}</span>
+                </div>
+                <span className="text-[11px] text-gray-400 shrink-0 ml-2">{a.date}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-5 text-white shadow-md">
+          <div className="flex items-center justify-between mb-3"><TrendingUp size={20}/><span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">이번 달</span></div>
+          <div className="text-3xl font-bold">23.4h</div>
+          <div className="text-sm opacity-90 mt-1">절감된 업무 시간</div>
+          <div className="mt-3 pt-3 border-t border-white/20 text-xs opacity-90">
+            ✨ AI 활용으로 평균 <span className="font-bold">42%</span>의 시간을 절약하고 있어요
+          </div>
+        </div>
+      </div>
+    </ServicePageShell>
+  );
+};
+
+const ServiceChat = ({initialPrompt='',initialAgent=null}) => {
+  const toast=useToast();
+  const [agent,setAgent]=useState(initialAgent||SERVICE_FEATURED_AGENTS[0]);
+  const [showAgentPicker,setShowAgentPicker]=useState(false);
+  const [convs,setConvs]=useState(SERVICE_RECENT_CONVS);
+  const [activeConv,setActiveConv]=useState(1);
+  const [msgs,setMsgs]=useState(SERVICE_SAMPLE_CHAT);
+  const [input,setInput]=useState(initialPrompt);
+  const [sending,setSending]=useState(false);
+  const [showSources,setShowSources]=useState(true);
+  const [showLeftRail,setShowLeftRail]=useState(true);
+  const [tools,setTools]=useState({rag:true,web:false,code:false,image:false});
+  const [convSearch,setConvSearch]=useState('');
+  const endRef=useRef(null);
+  useEffect(()=>{endRef.current?.scrollIntoView({behavior:'smooth'});},[msgs]);
+  useEffect(()=>{if(initialPrompt)setInput(initialPrompt);},[initialPrompt]);
+  const send=()=>{
+    if(!input.trim())return;
+    const userMsg={role:'user',content:input,time:'지금'};
+    setMsgs(p=>[...p,userMsg]);
+    setInput('');setSending(true);
+    setTimeout(()=>{
+      setMsgs(p=>[...p,{role:'assistant',content:`"${userMsg.content}" 에 대해 답변드리겠습니다.\n\n관련 사내 규정 및 매뉴얼을 참조한 결과, 다음과 같은 답변을 제공합니다:\n\n**핵심 내용**\n- 관련 규정: 사내 안전관리 규정 제3장\n- 적용 범위: 전 사업장\n- 책임 부서: 안전관리처\n\n**상세 절차**\n1. 1단계: 즉시 보고 및 초동 대응\n2. 2단계: 안전 점검 실시\n3. 3단계: 결과 문서화\n\n추가로 궁금하신 사항이 있으시면 말씀해 주세요.`,time:'지금',sources:[{title:'안전관리 규정 v2.1.pdf',page:24,chunk:'제3장 안전 점검 절차 ...',score:0.91},{title:'비상대응 매뉴얼.pdf',page:8,chunk:'1.2 초동 대응 ...',score:0.85}]}]);
+      setSending(false);
+    },1200);
+  };
+  const newChat=()=>{
+    setMsgs([]);
+    setActiveConv(null);
+    toast('새 대화를 시작합니다','info');
+  };
+  const filteredConvs=convs.filter(c=>!convSearch||c.title.includes(convSearch));
+  return (
+    <div className="flex h-full bg-white">
+      {/* Left rail: conversations */}
+      {showLeftRail && (
+        <div className="w-72 border-r flex flex-col bg-gray-50/40 shrink-0">
+          <div className="p-3 border-b flex items-center space-x-2">
+            <button onClick={newChat} className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center"><Plus size={14} className="mr-1"/>새 대화</button>
+            <button onClick={()=>setShowLeftRail(false)} className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"><PanelLeftClose size={16}/></button>
+          </div>
+          <div className="p-3 border-b">
+            <div className="relative">
+              <input value={convSearch} onChange={e=>setConvSearch(e.target.value)} placeholder="대화 검색..." className="w-full pl-8 pr-3 py-2 border rounded-lg text-xs bg-white"/>
+              <Search size={12} className="absolute left-2.5 top-2.5 text-gray-400"/>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="px-3 pt-2 pb-1 text-[10px] font-bold text-gray-400 uppercase">고정</div>
+            {filteredConvs.filter(c=>c.pinned).map(c=>(
+              <div key={c.id} onClick={()=>{setActiveConv(c.id);setMsgs(SERVICE_SAMPLE_CHAT);}} className={`mx-2 my-1 px-3 py-2 rounded-lg cursor-pointer text-sm ${activeConv===c.id?'bg-blue-50 text-blue-700 font-medium':'hover:bg-gray-100'}`}>
+                <div className="flex items-center space-x-1.5 mb-0.5"><Pin size={10} className="text-blue-500 shrink-0"/><span className="truncate">{c.title}</span></div>
+                <div className="text-[10px] text-gray-400 truncate">{c.agent} · {c.time}</div>
+              </div>
+            ))}
+            <div className="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase">최근</div>
+            {filteredConvs.filter(c=>!c.pinned).map(c=>(
+              <div key={c.id} onClick={()=>{setActiveConv(c.id);setMsgs(SERVICE_SAMPLE_CHAT);}} className={`mx-2 my-1 px-3 py-2 rounded-lg cursor-pointer text-sm ${activeConv===c.id?'bg-blue-50 text-blue-700 font-medium':'hover:bg-gray-100'}`}>
+                <div className="truncate mb-0.5">{c.title}</div>
+                <div className="text-[10px] text-gray-400 truncate">{c.agent} · {c.time}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Main chat */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Chat header */}
+        <div className="border-b px-5 py-3 flex items-center justify-between bg-white">
+          <div className="flex items-center space-x-3 min-w-0">
+            {!showLeftRail && <button onClick={()=>setShowLeftRail(true)} className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"><List size={16}/></button>}
+            <div className="relative">
+              <button onClick={()=>setShowAgentPicker(v=>!v)} className="flex items-center space-x-2 px-3 py-1.5 hover:bg-gray-100 rounded-lg">
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${agent.iconBg} flex items-center justify-center text-white shrink-0`}><Bot size={16}/></div>
+                <div className="text-left min-w-0">
+                  <div className="text-sm font-bold truncate">{agent.name}</div>
+                  <div className="text-[10px] text-gray-500">{agent.model}</div>
+                </div>
+                <ChevronDown size={14} className="text-gray-400"/>
+              </button>
+              {showAgentPicker && (
+                <div className="absolute top-full left-0 mt-1 w-80 bg-white border rounded-xl shadow-xl z-20 max-h-96 overflow-y-auto">
+                  <div className="p-2 border-b text-[11px] font-bold text-gray-500">에이전트 선택</div>
+                  {SERVICE_FEATURED_AGENTS.map(a=>(
+                    <div key={a.id} onClick={()=>{setAgent(a);setShowAgentPicker(false);toast(`${a.name} 으로 전환`);}} className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-2">
+                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${a.iconBg} flex items-center justify-center text-white shrink-0`}><Bot size={14}/></div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium truncate">{a.name}</div>
+                        <div className="text-[10px] text-gray-500 truncate">{a.desc}</div>
+                      </div>
+                      {agent.id===a.id&&<Check size={14} className="text-blue-600"/>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center space-x-1">
+            <button onClick={()=>toast('대화를 공유합니다','info')} className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg" title="공유"><ExternalLink size={16}/></button>
+            <button onClick={()=>toast('대화를 다운로드합니다','info')} className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg" title="내보내기"><Download size={16}/></button>
+            <button onClick={()=>setShowSources(v=>!v)} className={`p-2 rounded-lg ${showSources?'bg-blue-50 text-blue-600':'text-gray-400 hover:bg-gray-100'}`} title="출처 패널"><BookOpen size={16}/></button>
+            <button className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"><MoreHorizontal size={16}/></button>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto bg-[#FAFAFA]">
+          {msgs.length===0?(
+            <div className="h-full flex flex-col items-center justify-center text-center px-8">
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${agent.iconBg} flex items-center justify-center text-white mb-4 shadow-lg`}><Bot size={28}/></div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-1">{agent.name}</h2>
+              <p className="text-sm text-gray-500 max-w-md mb-6">{agent.desc}</p>
+              <div className="grid grid-cols-2 gap-2 max-w-2xl w-full">
+                {SERVICE_SUGGESTED_PROMPTS.slice(0,4).map((p,i)=>(
+                  <div key={i} onClick={()=>{setInput(p.q);}} className="p-3 border rounded-xl text-left hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer">
+                    <div className="flex items-center space-x-2 mb-1"><p.icon size={14} className="text-blue-600"/><span className="text-xs font-bold">{p.t}</span></div>
+                    <div className="text-xs text-gray-500 line-clamp-2">{p.q}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ):(
+            <div className="max-w-3xl mx-auto py-6 px-6 space-y-5">
+              {msgs.map((m,i)=>(
+                <div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}>
+                  {m.role==='assistant' && <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${agent.iconBg} flex items-center justify-center text-white mr-3 mt-1 shrink-0`}><Bot size={14}/></div>}
+                  <div className={`${m.role==='user'?'max-w-[80%] bg-blue-600 text-white':'flex-1 bg-white border'} rounded-2xl px-4 py-3 shadow-sm`}>
+                    <div className={`text-sm whitespace-pre-wrap leading-relaxed ${m.role==='user'?'text-white':'text-gray-800'}`}>{m.content}</div>
+                    {m.sources && (
+                      <div className="mt-3 pt-3 border-t">
+                        <div className="text-[11px] font-bold text-gray-500 mb-2 flex items-center"><BookOpen size={11} className="mr-1"/>출처 ({m.sources.length})</div>
+                        <div className="space-y-1.5">
+                          {m.sources.map((s,j)=>(
+                            <div key={j} className="bg-gray-50 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+                              <div className="flex items-center space-x-1.5 min-w-0">
+                                <FileText size={11} className="text-gray-400 shrink-0"/>
+                                <span className="text-[11px] font-medium truncate">{s.title}</span>
+                                <span className="text-[10px] text-gray-400">p.{s.page}</span>
+                              </div>
+                              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold ml-2 shrink-0">{(s.score*100).toFixed(0)}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.role==='assistant' && (
+                      <div className="mt-2 pt-2 border-t flex items-center space-x-1">
+                        <button onClick={()=>toast('좋은 답변으로 평가했습니다')} className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded"><ThumbsUp size={12}/></button>
+                        <button onClick={()=>toast('피드백이 접수되었습니다','info')} className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"><ThumbsDown size={12}/></button>
+                        <button onClick={()=>{navigator.clipboard?.writeText(m.content);toast('복사되었습니다');}} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Copy size={12}/></button>
+                        <button className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><RotateCcw size={12}/></button>
+                        <button onClick={()=>toast('음성 재생','info')} className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Volume2 size={12}/></button>
+                        <span className="text-[10px] text-gray-400 ml-auto">{m.time}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {sending && (
+                <div className="flex items-start">
+                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${agent.iconBg} flex items-center justify-center text-white mr-3 mt-1 shrink-0`}><Bot size={14}/></div>
+                  <div className="bg-white border rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0s'}}/>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0.2s'}}/>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0.4s'}}/>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={endRef}/>
+            </div>
+          )}
+        </div>
+
+        {/* Input bar */}
+        <div className="border-t bg-white p-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center space-x-1 mb-2 text-[11px]">
+              <span className="text-gray-400 mr-1">도구:</span>
+              {[
+                ['rag','지식 참조',BookOpen],
+                ['web','웹 검색',Globe],
+                ['code','코드 실행',Code],
+                ['image','이미지 분석',ImageIcon],
+              ].map(([k,l,Ic])=>(
+                <button key={k} onClick={()=>setTools(p=>({...p,[k]:!p[k]}))} className={`flex items-center space-x-1 px-2 py-1 rounded-lg border ${tools[k]?'bg-blue-50 border-blue-300 text-blue-700':'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                  <Ic size={11}/><span>{l}</span>
+                </button>
+              ))}
+            </div>
+            <div className="border-2 border-gray-200 rounded-2xl p-2 focus-within:border-blue-400 transition-colors bg-white">
+              <textarea value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} rows={1} placeholder={`${agent.name}에게 메시지를 입력하세요 (Shift+Enter 줄바꿈)`} className="w-full px-2 py-1.5 text-sm outline-none resize-none max-h-32"/>
+              <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center space-x-1">
+                  <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"><Paperclip size={16}/></button>
+                  <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"><ImageIcon size={16}/></button>
+                  <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"><Mic size={16}/></button>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] text-gray-400">{input.length} / 4000</span>
+                  <button onClick={send} disabled={!input.trim()||sending} className={`p-2 rounded-xl ${input.trim()&&!sending?'bg-blue-600 text-white hover:bg-blue-700':'bg-gray-100 text-gray-300'}`}>
+                    <ArrowUp size={16}/>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="mt-2 text-center text-[10px] text-gray-400">GenOS AI는 실수할 수 있습니다. 중요한 정보는 반드시 출처를 확인하세요.</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right rail: sources / agent info */}
+      {showSources && (
+        <div className="w-80 border-l bg-white shrink-0 flex flex-col">
+          <div className="p-4 border-b flex items-center justify-between">
+            <h3 className="font-bold text-sm flex items-center"><BookOpen size={14} className="mr-1.5 text-blue-600"/>참고 자료</h3>
+            <button onClick={()=>setShowSources(false)} className="p-1 text-gray-400 hover:bg-gray-100 rounded"><PanelRightClose size={14}/></button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="bg-blue-50 rounded-xl p-3">
+              <div className="text-[11px] font-bold text-blue-700 mb-1">에이전트 정보</div>
+              <div className="text-xs text-blue-900 leading-relaxed">{agent.desc}</div>
+              <div className="mt-2 flex items-center justify-between text-[10px] text-blue-700">
+                <span className="flex items-center"><Star size={10} className="text-yellow-500 fill-yellow-400 mr-0.5"/>{agent.rating}/5.0</span>
+                <span>{agent.calls}회 사용</span>
+              </div>
+            </div>
+            {msgs.find(m=>m.sources)?.sources?.map((s,i)=>(
+              <div key={i} className="border rounded-xl p-3 hover:border-blue-300 cursor-pointer">
+                <div className="flex items-start space-x-2 mb-2">
+                  <FileText size={14} className="text-gray-400 shrink-0 mt-0.5"/>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-medium truncate">{s.title}</div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">페이지 {s.page} · 유사도 {(s.score*100).toFixed(0)}%</div>
+                  </div>
+                </div>
+                <div className="text-[11px] text-gray-600 bg-gray-50 rounded p-2 line-clamp-3">{s.chunk}</div>
+                <button onClick={()=>toast('원본 문서를 엽니다','info')} className="mt-2 text-[10px] text-blue-600 hover:underline flex items-center"><ExternalLink size={10} className="mr-0.5"/>원본 열기</button>
+              </div>
+            ))}
+            <div className="bg-gray-50 rounded-xl p-3">
+              <div className="text-[11px] font-bold text-gray-700 mb-2">활성 도구</div>
+              <div className="space-y-1">
+                {Object.entries(tools).filter(([,v])=>v).map(([k])=>(
+                  <div key={k} className="text-xs flex items-center"><Check size={10} className="text-green-600 mr-1"/>{k==='rag'?'지식 참조 (RAG)':k==='web'?'웹 검색':k==='code'?'코드 실행':'이미지 분석'}</div>
+                ))}
+                {Object.values(tools).every(v=>!v)&&<div className="text-xs text-gray-400">활성화된 도구가 없습니다</div>}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ServiceAgentStore = ({onStartChat}) => {
+  const toast=useToast();
+  const [cat,setCat]=useState('all');
+  const [search,setSearch]=useState('');
+  const [sort,setSort]=useState('popular');
+  const [favs,setFavs]=useState(new Set(SERVICE_FEATURED_AGENTS.filter(a=>a.pinned).map(a=>a.id)));
+  const filtered=SERVICE_FEATURED_AGENTS.filter(a=>(cat==='all'||a.cat===cat)&&(!search||a.name.includes(search)||a.desc.includes(search)));
+  const sorted=[...filtered].sort((a,b)=>sort==='popular'?b.calls-a.calls:sort==='rating'?b.rating-a.rating:a.name.localeCompare(b.name));
+  const toggleFav=id=>setFavs(p=>{const n=new Set(p);n.has(id)?n.delete(id):n.add(id);return n;});
+  return (
+    <ServicePageShell>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-1">에이전트 스토어</h1>
+        <p className="text-sm text-gray-500">업무에 맞는 AI 에이전트를 골라 바로 사용하세요</p>
+      </div>
+
+      {/* Featured banner */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {SERVICE_FEATURED_AGENTS.slice(0,3).map(a=>(
+          <div key={a.id} className={`relative overflow-hidden rounded-2xl p-5 text-white bg-gradient-to-br ${a.iconBg} shadow-md hover:shadow-lg transition-all cursor-pointer`} onClick={()=>onStartChat('',a)}>
+            <div className="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/10 blur-2xl"/>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <Bot size={28}/>
+                <span className="bg-white/20 backdrop-blur px-2 py-0.5 rounded text-[10px] font-bold">{a.badge||'추천'}</span>
+              </div>
+              <div className="font-bold text-lg mb-1">{a.name}</div>
+              <div className="text-xs opacity-90 line-clamp-2 mb-3">{a.desc}</div>
+              <div className="flex items-center justify-between text-[11px] opacity-90">
+                <span className="flex items-center"><Star size={10} className="fill-current mr-1"/>{a.rating}</span>
+                <span>{a.calls}회 사용</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center space-x-1.5 overflow-x-auto">
+          {SERVICE_AGENT_CATEGORIES.map(c=>(
+            <button key={c.id} onClick={()=>setCat(c.id)} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border ${cat===c.id?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-600 hover:bg-gray-50'}`}>
+              {c.label} <span className="opacity-70">({c.count})</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center space-x-2 ml-3">
+          <div className="relative"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="에이전트 검색..." className="pl-8 pr-3 py-1.5 border rounded-lg text-xs w-60"/><Search size={12} className="absolute left-2.5 top-2.5 text-gray-400"/></div>
+          <select value={sort} onChange={e=>setSort(e.target.value)} className="px-2 py-1.5 border rounded-lg text-xs bg-white">
+            <option value="popular">인기순</option><option value="rating">평점순</option><option value="name">이름순</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-3 gap-4">
+        {sorted.map(a=>(
+          <div key={a.id} className="bg-white rounded-2xl border p-5 hover:border-blue-400 hover:shadow-lg transition-all group">
+            <div className="flex items-start justify-between mb-3">
+              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${a.iconBg} flex items-center justify-center text-white shadow-sm`}><Bot size={20}/></div>
+              <div className="flex items-center space-x-1">
+                {a.badge&&<span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">{a.badge}</span>}
+                <button onClick={()=>toggleFav(a.id)} className="text-gray-300 hover:text-yellow-500"><Star size={16} className={favs.has(a.id)?'fill-yellow-400 text-yellow-500':''}/></button>
+              </div>
+            </div>
+            <div className="font-bold text-sm mb-1">{a.name}</div>
+            <div className="text-xs text-gray-500 mb-3 line-clamp-2 min-h-[2.5rem]">{a.desc}</div>
+            <div className="flex items-center justify-between text-[11px] text-gray-400 pb-3 mb-3 border-b">
+              <span className="flex items-center"><Star size={10} className="text-yellow-500 fill-yellow-400 mr-0.5"/>{a.rating}</span>
+              <span>{a.calls}회</span>
+              <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded">{a.model}</span>
+            </div>
+            <button onClick={()=>onStartChat('',a)} className="w-full py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 flex items-center justify-center"><MessageSquare size={12} className="mr-1"/>사용하기</button>
+          </div>
+        ))}
+      </div>
+    </ServicePageShell>
+  );
+};
+
+const ServiceMyKnowledge = ({onStartChat}) => {
+  const toast=useToast();
+  const [kas,setKas]=useState(MOCK_PERSONAL_KA);
+  const [selKa,setSelKa]=useState(null);
+  const [drag,setDrag]=useState(false);
+  const totalDocs=kas.reduce((s,k)=>s+k.docs,0);
+  const totalChunks=kas.reduce((s,k)=>s+k.chunks,0);
+  return (
+    <ServicePageShell>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold mb-1">내 지식 영역</h1>
+          <p className="text-sm text-gray-500">개인 문서를 업로드해 나만의 AI 어시스턴트와 대화하세요</p>
+        </div>
+        <button onClick={()=>toast('새 지식영역 생성 (데모)','info')} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center"><Plus size={14} className="mr-1.5"/>지식영역 생성</button>
+      </div>
+
+      {/* Drop zone */}
+      <div onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);toast('문서가 업로드되었습니다 (데모)');}} className={`border-2 border-dashed rounded-2xl p-8 mb-6 text-center transition-all cursor-pointer ${drag?'border-blue-500 bg-blue-50':'border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/30'}`}>
+        <UploadCloud size={40} className={`mx-auto mb-3 ${drag?'text-blue-600':'text-gray-400'}`}/>
+        <div className="font-bold text-gray-800 mb-1">PDF, DOCX, XLSX, PPTX, TXT 파일을 끌어다 놓으세요</div>
+        <div className="text-xs text-gray-500 mb-3">최대 100MB / 파일당, 1회 업로드 시 최대 20개 파일</div>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">파일 선택</button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-3 mb-6">
+        {[
+          {l:'지식영역',v:kas.length,sub:'개인 KA',c:'border-blue-500 text-blue-700 bg-blue-50',icon:FolderTree},
+          {l:'총 문서',v:totalDocs,sub:'업로드 됨',c:'border-green-500 text-green-700 bg-green-50',icon:FileText},
+          {l:'총 청크',v:totalChunks.toLocaleString(),sub:'벡터 임베딩',c:'border-purple-500 text-purple-700 bg-purple-50',icon:Database},
+          {l:'질의 가능',v:'237 GB',sub:'잔여 용량',c:'border-orange-500 text-orange-700 bg-orange-50',icon:HardDrive},
+        ].map((s,i)=>(
+          <div key={i} className={`p-4 rounded-xl border-l-4 bg-white shadow-sm ${s.c.split(' ')[0]}`}>
+            <div className="flex items-center justify-between mb-1.5"><span className="text-xs text-gray-500">{s.l}</span><s.icon size={14} className="text-gray-300"/></div>
+            <div className={`text-xl font-bold ${s.c.split(' ')[1]}`}>{s.v}</div>
+            <div className="text-[10px] text-gray-400 mt-0.5">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* KA grid */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {kas.map(k=>(
+          <div key={k.id} className="bg-white rounded-2xl border p-5 hover:border-blue-400 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-sm"><FolderTree size={20}/></div>
+              <div className="flex items-center space-x-1">
+                {k.shared&&<span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">팀 공유</span>}
+                <StatusBadge status={k.status}/>
+              </div>
+            </div>
+            <div className="font-bold text-sm mb-2">{k.name}</div>
+            <div className="grid grid-cols-3 gap-2 mb-3 text-center">
+              <div className="bg-gray-50 rounded-lg p-2"><div className="text-sm font-bold">{k.docs}</div><div className="text-[9px] text-gray-400">문서</div></div>
+              <div className="bg-gray-50 rounded-lg p-2"><div className="text-sm font-bold">{k.chunks.toLocaleString()}</div><div className="text-[9px] text-gray-400">청크</div></div>
+              <div className="bg-gray-50 rounded-lg p-2"><div className="text-sm font-bold">{k.size}</div><div className="text-[9px] text-gray-400">용량</div></div>
+            </div>
+            <div className="text-[10px] text-gray-400 mb-3">최종 업데이트: {k.updated}</div>
+            <div className="flex space-x-2">
+              <button onClick={()=>onStartChat(`'${k.name}' 지식영역에서 검색`)} className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 flex items-center justify-center"><MessageSquare size={11} className="mr-1"/>대화하기</button>
+              <button onClick={()=>setSelKa(k)} className="px-3 py-2 border rounded-lg text-xs font-medium hover:bg-gray-50">관리</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Recent docs */}
+      <div className="bg-white rounded-2xl border overflow-hidden">
+        <div className="px-5 py-3 border-b flex items-center justify-between">
+          <h3 className="font-bold text-sm flex items-center"><History size={14} className="mr-1.5 text-gray-500"/>최근 업로드</h3>
+          <input placeholder="문서 검색..." className="px-3 py-1 border rounded-lg text-xs w-48"/>
+        </div>
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50/50 text-[11px] text-gray-400"><tr>
+            <th className="px-5 py-2.5 text-left font-medium">파일명</th>
+            <th className="px-5 py-2.5 text-left font-medium">크기</th>
+            <th className="px-5 py-2.5 text-left font-medium">청크</th>
+            <th className="px-5 py-2.5 text-left font-medium">업로드일</th>
+            <th className="px-5 py-2.5 text-left font-medium">상태</th>
+            <th className="px-5 py-2.5 text-center font-medium"></th>
+          </tr></thead>
+          <tbody className="divide-y">
+            {MOCK_KA_DOCS.map((d,i)=>(
+              <tr key={i} className="hover:bg-gray-50/50">
+                <td className="px-5 py-2.5"><div className="flex items-center space-x-2"><FileText size={14} className="text-gray-400"/><span className="font-medium truncate max-w-xs">{d.name}</span></div></td>
+                <td className="px-5 py-2.5 text-xs text-gray-500">{d.size}</td>
+                <td className="px-5 py-2.5 text-xs text-gray-500">{d.chunks}</td>
+                <td className="px-5 py-2.5 text-xs text-gray-400">{d.date}</td>
+                <td className="px-5 py-2.5"><span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${d.status==='Indexed'?'bg-green-50 text-green-700':'bg-blue-50 text-blue-700 animate-pulse'}`}>{d.status}</span></td>
+                <td className="px-5 py-2.5 text-center"><button onClick={()=>toast('다운로드합니다','info')} className="text-gray-400 hover:text-blue-600"><Download size={12}/></button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </ServicePageShell>
+  );
+};
+
+const ServiceReportWriter = () => {
+  const toast=useToast();
+  const [template,setTemplate]=useState(null);
+  const [step,setStep]=useState(0);
+  const [title,setTitle]=useState('');
+  const [source,setSource]=useState('');
+  const [tone,setTone]=useState('공식적');
+  const [length,setLength]=useState('보통');
+  const [generating,setGenerating]=useState(false);
+  const [generated,setGenerated]=useState(false);
+  const startGen=()=>{
+    setGenerating(true);setStep(3);
+    setTimeout(()=>{setGenerating(false);setGenerated(true);toast('보고서가 생성되었습니다');},2500);
+  };
+  const reset=()=>{setTemplate(null);setStep(0);setTitle('');setSource('');setGenerated(false);};
+  if(!template){
+    return (
+      <ServicePageShell>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-1">보고서 작성</h1>
+          <p className="text-sm text-gray-500">템플릿을 선택하고 자료를 입력하면 AI가 보고서 초안을 작성해드립니다</p>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          {SERVICE_REPORT_TEMPLATES.map(t=>(
+            <div key={t.id} onClick={()=>{setTemplate(t);setStep(1);}} className="bg-white rounded-2xl border-2 border-transparent p-5 hover:border-blue-400 hover:shadow-lg cursor-pointer transition-all group">
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${t.color} flex items-center justify-center text-white mb-4 shadow-md group-hover:scale-110 transition-transform`}><t.icon size={24}/></div>
+              <div className="font-bold mb-1">{t.name}</div>
+              <div className="text-xs text-gray-500 mb-4 line-clamp-2 min-h-[2rem]">{t.desc}</div>
+              <div className="space-y-1 mb-4">
+                {t.sections.map((s,i)=>(
+                  <div key={i} className="flex items-center text-[11px] text-gray-600"><Check size={10} className="text-green-500 mr-1.5"/>{s}</div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t text-[11px] text-gray-400">
+                <span className="flex items-center"><Clock size={10} className="mr-1"/>약 {t.time}</span>
+                <span>{t.uses}회 사용</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </ServicePageShell>
+    );
+  }
+  return (
+    <ServicePageShell>
+      <div className="mb-5 flex items-center space-x-3">
+        <button onClick={reset} className="p-2 hover:bg-gray-100 rounded-lg"><ArrowLeft size={16}/></button>
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${template.color} flex items-center justify-center text-white`}><template.icon size={18}/></div>
+        <div>
+          <div className="font-bold">{template.name}</div>
+          <div className="text-xs text-gray-500">{template.desc}</div>
+        </div>
+      </div>
+      <div className="flex items-center justify-center space-x-4 mb-6">
+        {['템플릿','자료/옵션','생성 결과'].map((l,i)=>(
+          <div key={l} className="flex items-center">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step>i?'bg-green-500 text-white':step===i?'bg-blue-600 text-white ring-4 ring-blue-100':'bg-gray-200 text-gray-400'}`}>{step>i?<Check size={12}/>:i+1}</div>
+            <span className={`ml-2 text-xs font-medium ${step>=i?'text-gray-800':'text-gray-400'}`}>{l}</span>
+            {i<2&&<div className={`w-12 h-0.5 mx-3 ${step>i?'bg-green-500':'bg-gray-200'}`}/>}
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-6">
+        {/* Form */}
+        <div className="bg-white rounded-2xl border p-6">
+          <h3 className="font-bold text-sm mb-4">자료 및 옵션</h3>
+          <div className="space-y-4">
+            <div><label className="text-xs font-medium text-gray-700 block mb-1">보고서 제목</label>
+              <input value={title} onChange={e=>setTitle(e.target.value)} placeholder={`예: 2026년 1분기 ${template.name}`} className="w-full px-3 py-2 border rounded-lg text-sm"/>
+            </div>
+            <div><label className="text-xs font-medium text-gray-700 block mb-1">자료 / 참고 정보</label>
+              <textarea value={source} onChange={e=>setSource(e.target.value)} rows={5} placeholder="자료의 핵심 내용을 붙여넣거나, 아래에서 파일을 첨부하세요" className="w-full px-3 py-2 border rounded-lg text-sm"/>
+              <div className="mt-2 border-2 border-dashed rounded-lg p-3 text-center text-xs text-gray-400 hover:border-blue-400 cursor-pointer"><Paperclip size={12} className="inline mr-1"/>파일 첨부 또는 KA에서 가져오기</div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><label className="text-xs font-medium text-gray-700 block mb-1">어조</label>
+                <select value={tone} onChange={e=>setTone(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white">
+                  <option>공식적</option><option>친근한</option><option>간결한</option><option>설명적</option>
+                </select>
+              </div>
+              <div><label className="text-xs font-medium text-gray-700 block mb-1">분량</label>
+                <select value={length} onChange={e=>setLength(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white">
+                  <option>간단 (1-2p)</option><option>보통</option><option>상세 (5-7p)</option><option>심층 (10p+)</option>
+                </select>
+              </div>
+            </div>
+            <div><label className="text-xs font-medium text-gray-700 block mb-1">포함 섹션</label>
+              <div className="grid grid-cols-2 gap-2">
+                {template.sections.map((s,i)=>(
+                  <label key={i} className="flex items-center text-xs bg-gray-50 rounded-lg px-3 py-2 cursor-pointer">
+                    <input type="checkbox" defaultChecked className="mr-2 accent-blue-600"/>{s}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <button onClick={startGen} disabled={!title} className={`w-full py-3 rounded-xl text-sm font-bold ${title?'bg-blue-600 text-white hover:bg-blue-700':'bg-gray-200 text-gray-400'}`}>
+              <Sparkles size={14} className="inline mr-1.5"/>보고서 생성하기
+            </button>
+          </div>
+        </div>
+        {/* Preview */}
+        <div className="bg-white rounded-2xl border p-6 overflow-hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-sm flex items-center"><Eye size={14} className="mr-1.5 text-gray-500"/>실시간 미리보기</h3>
+            {generated&&<div className="flex space-x-1">
+              <button onClick={()=>toast('Word 파일로 내보냅니다','info')} className="px-2 py-1 border rounded text-[11px] font-medium hover:bg-gray-50">DOCX</button>
+              <button onClick={()=>toast('PDF 파일로 내보냅니다','info')} className="px-2 py-1 border rounded text-[11px] font-medium hover:bg-gray-50">PDF</button>
+              <button onClick={()=>toast('인쇄','info')} className="p-1 border rounded hover:bg-gray-50"><Copy size={12}/></button>
+            </div>}
+          </div>
+          <div className="bg-gradient-to-b from-gray-50 to-white border rounded-xl p-5 min-h-[400px] text-sm">
+            {generating?(
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"/>
+                <div className="font-bold mb-1">보고서를 생성하고 있어요...</div>
+                <div className="text-xs text-gray-500">자료 분석 → 구조 설계 → 본문 작성</div>
+              </div>
+            ):generated?(
+              <div className="space-y-3 animate-in">
+                <div className="text-center pb-3 border-b">
+                  <div className="text-[10px] text-gray-400 uppercase tracking-wider">{template.name}</div>
+                  <div className="font-bold text-lg mt-1">{title}</div>
+                  <div className="text-[11px] text-gray-500 mt-1">작성: 김영빈 · 2026-05-17</div>
+                </div>
+                {template.sections.map((s,i)=>(
+                  <div key={i}>
+                    <div className="font-bold text-sm mb-1.5">{i+1}. {s}</div>
+                    <div className="text-xs text-gray-600 leading-relaxed bg-gray-50 rounded p-2">
+                      {i===0&&`본 보고서는 ${title}의 ${s}에 관한 내용을 다룹니다. 분석 대상 기간 동안의 주요 변동 사항과 핵심 지표를 정리하였으며, 향후 의사결정을 위한 시사점을 도출하였습니다.`}
+                      {i===1&&`주요 결과는 다음과 같습니다. 첫째, 핵심 KPI는 목표 대비 108% 달성하였습니다. 둘째, 신규 발견된 이슈는 총 3건이며 모두 경미한 수준입니다. 셋째, 다음 단계 권고 사항을 제시합니다.`}
+                      {i>=2&&`해당 섹션의 상세 내용이 AI에 의해 자동으로 작성됩니다. 사용자가 제공한 자료의 핵심 정보를 토대로 ${tone} 어조에 맞춰 ${length} 분량으로 구성됩니다.`}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ):(
+              <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                <FileText size={48} className="mb-3"/>
+                <div className="text-sm font-medium">왼쪽 폼을 작성하고</div>
+                <div className="text-xs mt-1">"보고서 생성하기" 버튼을 눌러주세요</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </ServicePageShell>
+  );
+};
+
+const ServiceDataAnalysis = () => {
+  const toast=useToast();
+  const [hasData,setHasData]=useState(true);
+  const [aiMsg,setAiMsg]=useState('');
+  const [chartType,setChartType]=useState('bar');
+  const [insights,setInsights]=useState([
+    {type:'warning',title:'압력 이상치 발견',desc:'LNG-T-01 설비에서 1.12 MPa (정상 범위 0.7-0.95) 측정',icon:AlertTriangle},
+    {type:'trend',title:'온도 안정적 유지',desc:'평균 -158.2°C, 표준편차 6.4°C로 안정적',icon:TrendingUp},
+    {type:'info',title:'점검 빈도 적정',desc:'2주간 5회 점검, 권장 주기 충족',icon:CheckCircle},
+  ]);
+  return (
+    <ServicePageShell>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-1">데이터 분석</h1>
+          <p className="text-sm text-gray-500">데이터를 업로드하면 AI가 자동으로 분석하고 시각화합니다</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button onClick={()=>setHasData(false)} className="px-3 py-2 border rounded-lg text-sm hover:bg-gray-50 flex items-center"><UploadCloud size={14} className="mr-1.5"/>새 데이터</button>
+          <button onClick={()=>toast('보고서로 변환합니다','info')} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center"><FileText size={14} className="mr-1.5"/>보고서로 변환</button>
+        </div>
+      </div>
+
+      {!hasData?(
+        <div className="border-2 border-dashed border-gray-300 rounded-2xl p-16 text-center bg-white">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-50 flex items-center justify-center mb-4"><UploadCloud size={32} className="text-blue-600"/></div>
+          <h3 className="font-bold mb-1">데이터 파일을 업로드하세요</h3>
+          <p className="text-xs text-gray-500 mb-4">CSV, Excel, JSON, Parquet · 최대 50MB</p>
+          <button onClick={()=>{setHasData(true);toast('샘플 데이터로 분석을 시작합니다','info');}} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">파일 선택</button>
+          <div className="mt-4 text-xs text-gray-400">또는 <button onClick={()=>setHasData(true)} className="text-blue-600 hover:underline">샘플 데이터로 시작</button></div>
+        </div>
+      ):(
+        <>
+          {/* Data preview */}
+          <div className="bg-white rounded-2xl border overflow-hidden mb-5">
+            <div className="px-5 py-3 bg-gray-50/80 border-b flex items-center justify-between">
+              <h3 className="font-bold text-sm flex items-center"><FileSpreadsheet size={14} className="mr-1.5 text-emerald-600"/>설비_점검_2026Q1.csv <span className="ml-2 text-[10px] text-gray-400 font-normal">5행 × 5열 (전체 124행)</span></h3>
+              <div className="flex items-center space-x-1">
+                <button onClick={()=>toast('전체 데이터를 봅니다','info')} className="text-xs text-blue-600 hover:underline">전체 보기</button>
+              </div>
+            </div>
+            <table className="w-full text-sm">
+              <thead className="bg-white text-[11px] text-gray-500"><tr>{SERVICE_SAMPLE_DATA.map((c,i)=>(<th key={i} className="px-4 py-2 text-left font-bold border-b">{c.col}</th>))}</tr></thead>
+              <tbody className="divide-y">
+                {SERVICE_SAMPLE_DATA[0].vals.map((_,r)=>(
+                  <tr key={r} className="hover:bg-gray-50/50">
+                    {SERVICE_SAMPLE_DATA.map((c,i)=>(
+                      <td key={i} className={`px-4 py-2 text-xs ${c.col==='결과'&&c.vals[r]==='이상'?'text-red-600 font-bold':''}`}>{c.vals[r]}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Stats + Chart + Insights */}
+          <div className="grid grid-cols-3 gap-5 mb-5">
+            <div className="col-span-2 bg-white rounded-2xl border p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-sm">자동 시각화</h3>
+                <div className="flex items-center space-x-1">
+                  {[['bar',BarChart3],['line',LineChart],['pie',PieChart]].map(([k,Ic])=>(
+                    <button key={k} onClick={()=>setChartType(k)} className={`p-1.5 rounded-lg ${chartType===k?'bg-blue-50 text-blue-600':'text-gray-400 hover:bg-gray-100'}`}><Ic size={14}/></button>
+                  ))}
+                </div>
+              </div>
+              {/* Chart placeholder */}
+              <div className="h-64 flex items-end space-x-3 px-4">
+                {[{l:'1주',v:24,c:'bg-blue-500'},{l:'2주',v:38,c:'bg-blue-500'},{l:'3주',v:52,c:'bg-blue-500'},{l:'4주',v:42,c:'bg-blue-500'},{l:'5주',v:65,c:'bg-orange-500'},{l:'6주',v:48,c:'bg-blue-500'}].map((b,i)=>(
+                  <div key={i} className="flex-1 flex flex-col items-center">
+                    <div className={`w-full ${b.c} rounded-t-md transition-all hover:opacity-80`} style={{height:`${b.v}%`}}/>
+                    <div className="text-[10px] text-gray-500 mt-1.5 font-medium">{b.l}</div>
+                    <div className="text-[10px] text-gray-400">{b.v}건</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-3 border-t grid grid-cols-4 gap-3 text-center">
+                <div><div className="text-xs text-gray-400">평균</div><div className="font-bold text-blue-700">44.8</div></div>
+                <div><div className="text-xs text-gray-400">중앙값</div><div className="font-bold text-blue-700">45.0</div></div>
+                <div><div className="text-xs text-gray-400">표준편차</div><div className="font-bold text-blue-700">14.2</div></div>
+                <div><div className="text-xs text-gray-400">이상치</div><div className="font-bold text-orange-600">1건</div></div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="bg-white rounded-2xl border p-5">
+                <h3 className="font-bold text-sm mb-3 flex items-center"><Sparkles size={14} className="mr-1.5 text-purple-600"/>AI 인사이트</h3>
+                <div className="space-y-2.5">
+                  {insights.map((insight,i)=>(
+                    <div key={i} className={`p-3 rounded-lg border-l-4 ${insight.type==='warning'?'bg-orange-50 border-orange-500':insight.type==='trend'?'bg-blue-50 border-blue-500':'bg-green-50 border-green-500'}`}>
+                      <div className="flex items-center space-x-1.5 mb-1"><insight.icon size={12} className={insight.type==='warning'?'text-orange-600':insight.type==='trend'?'text-blue-600':'text-green-600'}/><span className="text-xs font-bold">{insight.title}</span></div>
+                      <div className="text-[11px] text-gray-600">{insight.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Q&A */}
+          <div className="bg-white rounded-2xl border p-5">
+            <h3 className="font-bold text-sm mb-3 flex items-center"><MessageSquare size={14} className="mr-1.5 text-blue-600"/>데이터에 질문하기</h3>
+            <div className="space-y-2 mb-3">
+              {[
+                '이상치가 발생한 설비는 어디인가요?',
+                '월별 점검 빈도 추이를 알려주세요',
+                '압력 데이터 분포는 어떻게 되나요?',
+                '향후 1개월 예측 그래프를 그려주세요',
+              ].map((q,i)=>(
+                <button key={i} onClick={()=>setAiMsg(q)} className="w-full text-left px-3 py-2 border rounded-lg text-xs hover:bg-blue-50 hover:border-blue-300">💬 {q}</button>
+              ))}
+            </div>
+            <div className="flex items-center space-x-2 pt-3 border-t">
+              <input value={aiMsg} onChange={e=>setAiMsg(e.target.value)} placeholder="데이터에 대해 무엇이든 질문하세요" className="flex-1 px-3 py-2 border rounded-lg text-sm"/>
+              <button onClick={()=>{if(aiMsg)toast(`"${aiMsg}" 분석 중...`,'info');}} className="bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700"><ArrowUp size={14}/></button>
+            </div>
+          </div>
+        </>
+      )}
+    </ServicePageShell>
+  );
+};
+
+const ServiceImageGen = () => {
+  const toast=useToast();
+  const [prompt,setPrompt]=useState('');
+  const [style,setStyle]=useState('photo');
+  const [ratio,setRatio]=useState('16:9');
+  const [quality,setQuality]=useState('high');
+  const [generating,setGenerating]=useState(false);
+  const [generated,setGenerated]=useState(null);
+  const generate=()=>{
+    if(!prompt.trim()){toast('프롬프트를 입력해주세요','warning');return;}
+    setGenerating(true);setGenerated(null);
+    setTimeout(()=>{
+      const st=SERVICE_IMAGE_STYLES.find(s=>s.id===style);
+      setGenerated({prompt,style,ratio,gradient:st.sample});
+      setGenerating(false);
+      toast('이미지가 생성되었습니다');
+    },1800);
+  };
+  return (
+    <ServicePageShell>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-1">이미지 생성</h1>
+        <p className="text-sm text-gray-500">설명을 입력하면 AI가 이미지를 만들어드립니다</p>
+      </div>
+      <div className="grid grid-cols-3 gap-6">
+        {/* Form */}
+        <div className="col-span-1 bg-white rounded-2xl border p-5 space-y-4 h-fit">
+          <div><label className="text-xs font-bold text-gray-700 block mb-1.5">프롬프트</label>
+            <textarea value={prompt} onChange={e=>setPrompt(e.target.value)} rows={4} placeholder="원하는 이미지를 자세히 설명해주세요&#10;예: 안전모를 쓴 엔지니어가 LNG 저장탱크를 점검하는 모습, 일러스트 풍" className="w-full px-3 py-2 border rounded-lg text-sm"/>
+          </div>
+          <div><label className="text-xs font-bold text-gray-700 block mb-1.5">스타일</label>
+            <div className="grid grid-cols-3 gap-2">
+              {SERVICE_IMAGE_STYLES.map(s=>(
+                <button key={s.id} onClick={()=>setStyle(s.id)} className={`p-2 rounded-lg border-2 text-center hover:scale-105 transition-transform ${style===s.id?'border-blue-500 ring-2 ring-blue-200':'border-gray-200'}`}>
+                  <div className={`w-full h-14 rounded bg-gradient-to-br ${s.sample} mb-1.5`}/>
+                  <div className="text-[11px] font-bold">{s.name}</div>
+                  <div className="text-[9px] text-gray-400">{s.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div><label className="text-xs font-bold text-gray-700 block mb-1.5">비율</label>
+            <div className="flex space-x-2">
+              {['1:1','4:3','16:9','9:16'].map(r=>(
+                <button key={r} onClick={()=>setRatio(r)} className={`flex-1 px-2 py-1.5 border rounded-lg text-xs font-medium ${ratio===r?'bg-blue-50 border-blue-500 text-blue-700':'hover:bg-gray-50'}`}>{r}</button>
+              ))}
+            </div>
+          </div>
+          <div><label className="text-xs font-bold text-gray-700 block mb-1.5">품질</label>
+            <div className="flex space-x-2">
+              {[['fast','빠름','512px'],['high','고품질','1024px'],['ultra','초고품질','2048px']].map(([k,l,d])=>(
+                <button key={k} onClick={()=>setQuality(k)} className={`flex-1 px-2 py-2 border rounded-lg ${quality===k?'bg-blue-50 border-blue-500':'hover:bg-gray-50'}`}>
+                  <div className="text-xs font-bold">{l}</div>
+                  <div className="text-[10px] text-gray-400">{d}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={generate} disabled={generating} className={`w-full py-3 rounded-xl text-sm font-bold ${generating?'bg-gray-200 text-gray-400':'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90'}`}>
+            {generating?<><RefreshCw size={14} className="inline mr-1.5 animate-spin"/>생성 중...</>:<><Sparkles size={14} className="inline mr-1.5"/>이미지 생성</>}
+          </button>
+        </div>
+        {/* Preview */}
+        <div className="col-span-2">
+          <div className="bg-white rounded-2xl border p-5 mb-5">
+            <h3 className="font-bold text-sm mb-3">미리보기</h3>
+            <div className={`relative w-full bg-gray-100 rounded-xl overflow-hidden ${ratio==='1:1'?'aspect-square':ratio==='4:3'?'aspect-[4/3]':ratio==='16:9'?'aspect-video':'aspect-[9/16] max-w-xs mx-auto'}`}>
+              {generating?(
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse">
+                  <Sparkles size={40} className="text-gray-400 mb-2 animate-pulse"/>
+                  <div className="text-xs text-gray-500">생성 중...</div>
+                </div>
+              ):generated?(
+                <div className={`absolute inset-0 bg-gradient-to-br ${generated.gradient} flex items-center justify-center text-white`}>
+                  <div className="text-center p-4">
+                    <Camera size={32} className="mx-auto mb-2 opacity-80"/>
+                    <div className="text-xs opacity-90 line-clamp-3 max-w-xs">{generated.prompt}</div>
+                  </div>
+                  <div className="absolute bottom-3 right-3 flex space-x-1">
+                    <button onClick={()=>toast('다운로드합니다')} className="p-1.5 bg-white/20 backdrop-blur rounded-lg hover:bg-white/30"><Download size={12}/></button>
+                    <button onClick={()=>toast('재생성합니다','info')} className="p-1.5 bg-white/20 backdrop-blur rounded-lg hover:bg-white/30"><RefreshCw size={12}/></button>
+                    <button onClick={()=>toast('보관함에 저장','info')} className="p-1.5 bg-white/20 backdrop-blur rounded-lg hover:bg-white/30"><Bookmark size={12}/></button>
+                  </div>
+                </div>
+              ):(
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                  <ImageIcon size={40} className="mb-2"/>
+                  <div className="text-xs">왼쪽에서 프롬프트를 입력하세요</div>
+                </div>
+              )}
+            </div>
+          </div>
+          <div>
+            <h3 className="font-bold text-sm mb-3 flex items-center"><History size={14} className="mr-1.5 text-purple-600"/>최근 생성</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {SERVICE_RECENT_IMAGES.map(img=>(
+                <div key={img.id} className="bg-white rounded-xl border overflow-hidden hover:shadow-md cursor-pointer group">
+                  <div className={`aspect-square bg-gradient-to-br ${img.gradient} relative`}>
+                    <div className="absolute inset-0 flex items-center justify-center text-white opacity-50"><ImageIcon size={28}/></div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex space-x-1 justify-end">
+                        <button className="p-1 bg-white/20 backdrop-blur rounded text-white"><Download size={10}/></button>
+                        <button className="p-1 bg-white/20 backdrop-blur rounded text-white"><Copy size={10}/></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-2">
+                    <div className="text-[11px] font-medium line-clamp-2 mb-1">{img.prompt}</div>
+                    <div className="flex items-center justify-between text-[9px] text-gray-400">
+                      <span>{SERVICE_IMAGE_STYLES.find(s=>s.id===img.style)?.name}</span>
+                      <span>{img.time}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ServicePageShell>
+  );
+};
+
+const ServiceQuickTools = () => {
+  const toast=useToast();
+  const [tool,setTool]=useState('translate');
+  const [input,setInput]=useState('');
+  const [output,setOutput]=useState('');
+  const [processing,setProcessing]=useState(false);
+  const [opts,setOpts]=useState({from:'ko',to:'en',mailType:'협조 요청',summaryLen:'중간'});
+  const run=()=>{
+    if(!input.trim()){toast('내용을 입력해주세요','warning');return;}
+    setProcessing(true);setOutput('');
+    setTimeout(()=>{
+      const samples={
+        translate:`Subject: Inquiry about LNG Storage Tank Inspection Procedure\n\nDear Team,\n\nI would like to inquire about the regular inspection cycle and inspection items for LNG storage tanks. Could you please share the latest standards and check points?\n\nBest regards,\nKim Young-bin`,
+        summary:`핵심 요약:\n• LNG 저장탱크는 매일 1회 일상점검, 매월 1회 정기점검, 6개월마다 정밀점검 수행\n• 안전밸브 설정압력은 설계압력의 110%\n• 4년마다 개방점검 시행\n• 안전관리법 제43조 위반 시 즉시 운영 중단 및 보수`,
+        mail:`안녕하세요, 안전관리팀입니다.\n\n다름이 아니라 ${opts.mailType||'협조 요청'} 건으로 메일 드립니다. \n첨부 자료를 검토하시고 의견 부탁드립니다.\n\n바쁘신 와중에 검토해 주셔서 감사합니다.\n\n감사합니다.\n안전관리팀 김영빈 드림`,
+        meeting:`📋 회의록\n\n● 일시: 2026-05-17 14:00-15:30\n● 안건: LNG 설비 점검 절차 개선\n\n결정 사항:\n  1. 정기점검 주기를 월 1회 → 월 2회로 변경\n  2. 디지털 체크리스트 시스템 도입\n\n액션 아이템:\n  • 김영빈: 점검 양식 개선안 (5/24까지)\n  • 이준호: 디지털 시스템 RFP 작성 (5/31까지)`,
+        proofread:`수정된 문장:\n원문: "LNG저장탱크의 안전벨브 설정압력은 설계압력의 110% 입니다."\n수정: "LNG 저장탱크의 안전밸브 설정 압력은 설계 압력의 110%입니다."\n\n수정 사항:\n• "LNG저장탱크" → "LNG 저장탱크" (띄어쓰기)\n• "안전벨브" → "안전밸브" (맞춤법)\n• "110% 입니다" → "110%입니다" (조사 붙임)`,
+        ideas:`💡 "사내 AI 도입 활성화" 아이디어\n\n1. 부서별 AI 챔피언 제도\n   - 부서당 1명 선정, 활용 사례 공유\n\n2. 월간 AI 사례 발표회\n   - 우수 사례 표창 및 인센티브\n\n3. 사내 AI 자격증 운영\n   - 초/중/고급 단계별 교육\n\n4. AI 활용 KPI 반영\n   - 업무 효율성 지표화\n\n5. 활용 사례 위키 구축\n   - 누구나 검색 가능한 노하우 DB`,
+      };
+      setOutput(samples[tool]||'결과가 생성되었습니다.');
+      setProcessing(false);
+    },900);
+  };
+  return (
+    <ServicePageShell>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-1">간편 도구</h1>
+        <p className="text-sm text-gray-500">자주 쓰는 AI 도구를 한 곳에서 빠르게</p>
+      </div>
+      {/* Tool tabs */}
+      <div className="grid grid-cols-6 gap-2 mb-5">
+        {SERVICE_QUICK_TOOLS.map(t=>(
+          <button key={t.id} onClick={()=>{setTool(t.id);setInput('');setOutput('');}} className={`p-3 rounded-xl border-2 text-left transition-all ${tool===t.id?'border-blue-500 bg-blue-50':'border-gray-200 bg-white hover:border-blue-300'}`}>
+            <div className={`w-8 h-8 rounded-lg ${t.color} flex items-center justify-center mb-2`}><t.icon size={14}/></div>
+            <div className="font-bold text-xs">{t.name}</div>
+            <div className="text-[10px] text-gray-500 line-clamp-1">{t.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Tool-specific options */}
+      {tool==='translate' && (
+        <div className="bg-white rounded-2xl border p-4 mb-3 flex items-center space-x-3">
+          <div className="text-xs font-medium text-gray-700">언어:</div>
+          <select value={opts.from} onChange={e=>setOpts({...opts,from:e.target.value})} className="px-3 py-1.5 border rounded-lg text-xs bg-white"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="zh">中文</option></select>
+          <ArrowRight size={14} className="text-gray-400"/>
+          <select value={opts.to} onChange={e=>setOpts({...opts,to:e.target.value})} className="px-3 py-1.5 border rounded-lg text-xs bg-white"><option value="en">English</option><option value="ko">한국어</option><option value="ja">日本語</option><option value="zh">中文</option></select>
+          <button onClick={()=>setOpts({...opts,from:opts.to,to:opts.from})} className="p-1.5 hover:bg-gray-100 rounded-lg" title="언어 교환"><RotateCcw size={14}/></button>
+        </div>
+      )}
+      {tool==='mail' && (
+        <div className="bg-white rounded-2xl border p-4 mb-3 flex items-center space-x-3">
+          <div className="text-xs font-medium text-gray-700">메일 유형:</div>
+          {['협조 요청','감사','회신','일정 조율','문의'].map(t=>(
+            <button key={t} onClick={()=>setOpts({...opts,mailType:t})} className={`px-3 py-1 rounded-lg text-xs ${opts.mailType===t?'bg-blue-600 text-white':'border hover:bg-gray-50'}`}>{t}</button>
+          ))}
+        </div>
+      )}
+      {tool==='summary' && (
+        <div className="bg-white rounded-2xl border p-4 mb-3 flex items-center space-x-3">
+          <div className="text-xs font-medium text-gray-700">요약 길이:</div>
+          {['짧게','중간','상세'].map(l=>(
+            <button key={l} onClick={()=>setOpts({...opts,summaryLen:l})} className={`px-3 py-1 rounded-lg text-xs ${opts.summaryLen===l?'bg-blue-600 text-white':'border hover:bg-gray-50'}`}>{l}</button>
+          ))}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-5">
+        <div className="bg-white rounded-2xl border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-sm">입력</h3>
+            <button onClick={()=>setInput('')} className="text-xs text-gray-400 hover:text-gray-600">지우기</button>
+          </div>
+          <textarea value={input} onChange={e=>setInput(e.target.value)} rows={10} placeholder={tool==='translate'?'번역할 문장을 입력하세요':tool==='summary'?'요약할 글을 붙여넣으세요':tool==='mail'?'메일 작성에 필요한 핵심 정보를 입력하세요':tool==='meeting'?'회의 메모 또는 녹취록을 입력하세요':tool==='proofread'?'맞춤법을 검사할 문장을 입력하세요':'아이디어가 필요한 주제를 입력하세요'} className="w-full px-3 py-2 border rounded-lg text-sm"/>
+          <div className="flex items-center justify-between mt-3">
+            <span className="text-[10px] text-gray-400">{input.length}자</span>
+            <button onClick={run} disabled={processing} className={`px-4 py-2 rounded-lg text-sm font-bold ${processing?'bg-gray-200 text-gray-400':'bg-blue-600 text-white hover:bg-blue-700'}`}>
+              {processing?<><RefreshCw size={12} className="inline mr-1 animate-spin"/>처리 중</>:<><Sparkles size={12} className="inline mr-1"/>실행</>}
+            </button>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-sm">결과</h3>
+            {output&&<div className="flex items-center space-x-1">
+              <button onClick={()=>{navigator.clipboard?.writeText(output);toast('복사되었습니다');}} className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-blue-600"><Copy size={12}/></button>
+              <button onClick={()=>toast('다운로드','info')} className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-blue-600"><Download size={12}/></button>
+              <button onClick={run} className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-blue-600"><RotateCcw size={12}/></button>
+            </div>}
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 min-h-[16rem] text-sm whitespace-pre-wrap leading-relaxed">
+            {processing?<div className="flex space-x-1 mt-2"><div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"/><div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0.2s'}}/><div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay:'0.4s'}}/></div>:output||<span className="text-gray-300">결과가 여기에 표시됩니다</span>}
+          </div>
+        </div>
+      </div>
+    </ServicePageShell>
+  );
+};
+
+const ServiceHistory = ({onOpenChat}) => {
+  const toast=useToast();
+  const [search,setSearch]=useState('');
+  const [filter,setFilter]=useState('all');
+  const filtered=SERVICE_RECENT_CONVS.filter(c=>(!search||c.title.includes(search)||c.agent.includes(search))&&(filter==='all'||(filter==='pinned'&&c.pinned)));
+  return (
+    <ServicePageShell>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-1">대화 기록</h1>
+        <p className="text-sm text-gray-500">지금까지 나눈 모든 대화를 검색하고 관리하세요</p>
+      </div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-2">
+          {[['all','전체',SERVICE_RECENT_CONVS.length],['pinned','고정',SERVICE_RECENT_CONVS.filter(c=>c.pinned).length]].map(([k,l,n])=>(
+            <button key={k} onClick={()=>setFilter(k)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${filter===k?'bg-blue-600 text-white':'bg-white border hover:bg-gray-50'}`}>{l} <span className="opacity-70">({n})</span></button>
+          ))}
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="relative"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="제목, 에이전트 검색..." className="pl-8 pr-3 py-1.5 border rounded-lg text-xs w-64"/><Search size={12} className="absolute left-2.5 top-2.5 text-gray-400"/></div>
+          <button onClick={()=>toast('대화 기록을 내보냅니다','info')} className="px-3 py-1.5 border rounded-lg text-xs font-medium flex items-center"><Download size={12} className="mr-1"/>내보내기</button>
+        </div>
+      </div>
+      <div className="bg-white rounded-2xl border divide-y overflow-hidden">
+        {filtered.map(c=>(
+          <div key={c.id} onClick={onOpenChat} className="px-5 py-4 hover:bg-gray-50/50 cursor-pointer">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center space-x-2 min-w-0">
+                {c.pinned&&<Pin size={12} className="text-blue-500 shrink-0"/>}
+                <span className="font-bold text-sm truncate">{c.title}</span>
+                <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded shrink-0">{c.agent}</span>
+              </div>
+              <div className="flex items-center space-x-2 shrink-0">
+                <span className="text-[10px] text-gray-400">{c.time}</span>
+                <button onClick={e=>{e.stopPropagation();toast(c.pinned?'고정 해제됨':'고정되었습니다');}} className="p-1 text-gray-300 hover:text-blue-600">{c.pinned?<Pin size={12} className="fill-current text-blue-500"/>:<PinOff size={12}/>}</button>
+                <button onClick={e=>{e.stopPropagation();toast('삭제되었습니다','warning');}} className="p-1 text-gray-300 hover:text-red-600"><Trash2 size={12}/></button>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 line-clamp-1 pl-5">{c.preview}</div>
+          </div>
+        ))}
+      </div>
+    </ServicePageShell>
+  );
+};
+
 // ==================== SIDEBAR ====================
 const SidebarItem = ({item,activeId,onNav,level=0}) => {
   const isActive = activeId===item.id;
@@ -3698,9 +4933,32 @@ const SidebarItem = ({item,activeId,onNav,level=0}) => {
 
 // ==================== MAIN APP ====================
 const App = () => {
-  const [activeId,setActiveId]=useState('dashboard.system');
+  const [viewMode,setViewMode]=useState('service'); // 'service' | 'admin'
+  const [activeId,setActiveId]=useState('svc.home');
+  const [adminActiveId,setAdminActiveId]=useState('dashboard.system');
+  const [chatSeed,setChatSeed]=useState({prompt:'',agent:null});
 
-  const menu = [
+  const startChat=(prompt='',agent=null)=>{
+    setChatSeed({prompt,agent});
+    setActiveId('svc.chat');
+  };
+
+  const serviceMenu=[
+    {id:'svc.home',label:'홈',icon:Home},
+    {id:'svc.chat',label:'AI 채팅',icon:MessageSquare,highlight:true},
+    {id:'svc.agents',label:'에이전트 스토어',icon:Bot},
+    {id:'svc.knowledge',label:'내 지식 영역',icon:FolderTree},
+    {id:'_sd1',label:'생산성',section:true},
+    {id:'svc.report',label:'보고서 작성',icon:FileText},
+    {id:'svc.analysis',label:'데이터 분석',icon:BarChart3},
+    {id:'svc.image',label:'이미지 생성',icon:ImageIcon},
+    {id:'svc.tools',label:'간편 도구',icon:Wand2},
+    {id:'_sd2',label:'기록',section:true},
+    {id:'svc.history',label:'대화 기록',icon:History},
+    {id:'user.page',label:'마이페이지',icon:UserCog},
+  ];
+
+  const adminMenu = [
     {id:'dashboard',label:'대시보드',icon:LayoutDashboard,children:[
       {id:'dashboard.system',label:'시스템'},{id:'dashboard.service',label:'서비스'},{id:'dashboard.gpu',label:'GPU'},{id:'dashboard.trainer',label:'트레이너'}
     ]},
@@ -3754,7 +5012,7 @@ const App = () => {
     ]},
   ];
 
-  const pages = {
+  const adminPages = {
     'dashboard.system':<SystemDashboard/>,'dashboard.service':<ServiceDashboard/>,'dashboard.gpu':<GpuDashboard/>,'dashboard.trainer':<DashboardTrainer/>,
     'data.dataset':<DatasetPage/>,'data.vectordb':<VectorDbPage/>,'data.autoload':<AutoLoadPage/>,
     'dev.codespace':<CodespacePage/>,'dev.volume':<SharedVolumePage/>,
@@ -3774,50 +5032,106 @@ const App = () => {
     'user.page':<UserPage/>,
   };
 
+  const servicePages = {
+    'svc.home':<ServiceHome onNav={setActiveId} onStartChat={startChat}/>,
+    'svc.chat':<ServiceChat initialPrompt={chatSeed.prompt} initialAgent={chatSeed.agent}/>,
+    'svc.agents':<ServiceAgentStore onStartChat={startChat}/>,
+    'svc.knowledge':<ServiceMyKnowledge onStartChat={startChat}/>,
+    'svc.report':<ServiceReportWriter/>,
+    'svc.analysis':<ServiceDataAnalysis/>,
+    'svc.image':<ServiceImageGen/>,
+    'svc.tools':<ServiceQuickTools/>,
+    'svc.history':<ServiceHistory onOpenChat={()=>setActiveId('svc.chat')}/>,
+    'user.page':<UserPage/>,
+  };
+
+  const isService=viewMode==='service';
+  const currentMenu=isService?serviceMenu:adminMenu;
+  const currentPages=isService?servicePages:adminPages;
+  const currentActiveId=isService?activeId:adminActiveId;
+  const currentSetActiveId=isService?setActiveId:setAdminActiveId;
+
+  const switchMode=()=>{
+    if(isService){
+      setViewMode('admin');
+    } else {
+      setViewMode('service');
+    }
+  };
+
   return (
     <ToastProvider>
     <div className="flex h-screen bg-gray-50 text-gray-800" style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
       {/* Sidebar */}
-      <div className="w-60 bg-white flex flex-col h-full border-r shrink-0">
-        <div className="p-5 pb-4 flex items-center space-x-2.5 border-b">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">G</div>
-          <span className="text-lg font-extrabold tracking-tight">GenOS</span>
+      <div className={`${isService?'w-60 bg-white':'w-60 bg-white'} flex flex-col h-full border-r shrink-0`}>
+        <div className="p-5 pb-4 flex items-center justify-between border-b">
+          <div className="flex items-center space-x-2.5">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm ${isService?'bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500':'bg-gradient-to-br from-blue-600 to-indigo-600'}`}>G</div>
+            <div>
+              <div className="text-base font-extrabold tracking-tight leading-none">GenOS</div>
+              <div className="text-[9px] text-gray-400 font-medium mt-0.5">{isService?'AI 어시스턴트':'관리자 콘솔'}</div>
+            </div>
+          </div>
         </div>
+        {isService && (
+          <div className="px-3 pt-3">
+            <button onClick={()=>{setChatSeed({prompt:'',agent:null});setActiveId('svc.chat');}} className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center shadow-sm transition-all">
+              <Plus size={14} className="mr-1.5"/>새 대화 시작
+            </button>
+          </div>
+        )}
         <div className="flex-1 py-2 overflow-y-auto text-sm custom-scrollbar" style={{scrollbarWidth:'thin'}}>
-          {menu.map(item=>
+          {currentMenu.map(item=>
             item.section ? <div key={item.id} className="px-5 pt-5 pb-1.5 text-[11px] font-bold text-gray-400 tracking-wider">{item.label}</div>
-            : <SidebarItem key={item.id} item={item} activeId={activeId} onNav={setActiveId}/>
+            : <SidebarItem key={item.id} item={item} activeId={currentActiveId} onNav={currentSetActiveId}/>
           )}
         </div>
-        <div className="border-t">
-          <div onClick={()=>setActiveId('user.page')} className={`mx-2 my-2 flex items-center space-x-2 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${activeId==='user.page'?'bg-blue-50 text-blue-700 font-bold border-l-[3px] border-blue-600':'hover:bg-gray-50 text-gray-600'}`}>
-            <Monitor size={16} className={activeId==='user.page'?'text-blue-600':'text-gray-400'}/><span>사용자 페이지</span>
+        {!isService && (
+          <div className="border-t">
+            <div onClick={()=>setAdminActiveId('user.page')} className={`mx-2 my-2 flex items-center space-x-2 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${adminActiveId==='user.page'?'bg-blue-50 text-blue-700 font-bold border-l-[3px] border-blue-600':'hover:bg-gray-50 text-gray-600'}`}>
+              <Monitor size={16} className={adminActiveId==='user.page'?'text-blue-600':'text-gray-400'}/><span>사용자 페이지</span>
+            </div>
           </div>
-        </div>
+        )}
         <div className="p-3 border-t">
-          <div className="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+          <div className="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer mb-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-xs font-bold shadow-sm">김</div>
-            <div className="flex-1 min-w-0"><div className="text-sm font-bold truncate">김영빈·관리자</div><div className="text-xs text-gray-400 truncate">한국가스기술공사</div></div>
+            <div className="flex-1 min-w-0"><div className="text-sm font-bold truncate">김영빈·{isService?'사용자':'관리자'}</div><div className="text-xs text-gray-400 truncate">한국가스기술공사</div></div>
           </div>
+          <button onClick={switchMode} className={`w-full px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-center transition-all ${isService?'bg-gray-800 text-white hover:bg-gray-900':'border-2 border-blue-500 text-blue-600 hover:bg-blue-50'}`}>
+            {isService?<><Settings size={12} className="mr-1.5"/>관리자 콘솔로 전환</>:<><ArrowLeft size={12} className="mr-1.5"/>사용자 서비스로 돌아가기</>}
+          </button>
         </div>
       </div>
 
       {/* Main */}
       <main className="flex-1 overflow-hidden flex flex-col">
         {/* Top bar */}
-        <div className="h-14 bg-white border-b shadow-sm flex items-center justify-end px-6 shrink-0 space-x-2">
-          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Columns size={18}/></button>
-          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Settings size={18}/></button>
-          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg relative"><Bell size={18}/><span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"/></button>
-          <div className="flex items-center space-x-2 ml-3 pl-3 border-l text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-900">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-[10px] font-bold">김</div>
-            <span>김영빈</span><ChevronDown size={14}/>
+        <div className="h-14 bg-white border-b shadow-sm flex items-center justify-between px-6 shrink-0">
+          <div className="flex items-center space-x-3">
+            {isService && <span className="text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700 border border-indigo-100">🎨 사용자 서비스 모드</span>}
+            {!isService && <span className="text-xs font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-700 border">⚙️ 관리자 콘솔</span>}
+          </div>
+          <div className="flex items-center space-x-2">
+            {isService && (
+              <div className="relative max-w-md mr-3">
+                <input placeholder="전체 검색..." className="w-72 pl-9 pr-3 py-1.5 border rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"/>
+                <Search size={14} className="absolute left-3 top-2 text-gray-400"/>
+              </div>
+            )}
+            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Columns size={18}/></button>
+            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><Settings size={18}/></button>
+            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg relative"><Bell size={18}/><span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"/></button>
+            <div className="flex items-center space-x-2 ml-3 pl-3 border-l text-sm font-medium text-gray-700 cursor-pointer hover:text-gray-900">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-[10px] font-bold">김</div>
+              <span>김영빈</span><ChevronDown size={14}/>
+            </div>
           </div>
         </div>
         <div className="flex-1 overflow-hidden bg-[#F8F9FA]">
-          {pages[activeId] || (
+          {currentPages[currentActiveId] || (
             <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <Briefcase size={48} className="mb-4 text-gray-300"/><h3 className="text-lg font-medium">준비 중인 페이지입니다</h3><p className="text-sm mt-1 font-mono bg-gray-100 px-3 py-1 rounded">{activeId}</p>
+              <Briefcase size={48} className="mb-4 text-gray-300"/><h3 className="text-lg font-medium">준비 중인 페이지입니다</h3><p className="text-sm mt-1 font-mono bg-gray-100 px-3 py-1 rounded">{currentActiveId}</p>
             </div>
           )}
         </div>
