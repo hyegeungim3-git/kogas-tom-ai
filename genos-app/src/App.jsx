@@ -5192,64 +5192,64 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   const extColor=ext=>ext==='pdf'?'text-red-600 bg-red-50':ext==='docx'?'text-blue-600 bg-blue-50':ext==='xlsx'?'text-emerald-600 bg-emerald-50':'text-gray-600 bg-gray-100';
 
   return (
-    <div className="flex flex-col h-screen bg-[#F2F4F8] text-gray-800" style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
+    <div className="flex flex-col h-screen bg-[#EEF2F7] text-slate-900" style={{fontFamily:'"NanumSquareNeo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif'}}>
       {/* ============ TOP BAR (3-section unified) ============ */}
-      <header className="h-14 flex bg-white border-b shrink-0">
+      <header className="h-16 flex bg-white border-b border-slate-200 shrink-0">
         {/* Logo block */}
-        <div className="w-64 flex items-center px-4 border-r shrink-0">
+        <div className="w-64 flex items-center px-4 shrink-0">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
-              <span className="font-extrabold text-[11px] tracking-tight">AI</span>
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-300 via-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-sky-200/60">
+              <span className="font-black text-[12px] tracking-tight">AI</span>
             </div>
             <div>
-              <div className="font-extrabold text-[15px] tracking-tight leading-none">KOGAS-Tech AI</div>
-              <div className="text-[10px] text-gray-500 font-medium mt-1">사용자 챗봇</div>
+              <div className="font-extrabold text-[15px] tracking-tight leading-none text-slate-900">KOGAS-Tech AI</div>
+              <div className="text-[10px] text-slate-500 font-medium mt-1">사용자 챗봇</div>
             </div>
           </div>
         </div>
         {/* Center title */}
         <div className="flex-1 flex items-center justify-between px-6 min-w-0">
-          <div className="flex items-center space-x-2 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 shrink-0"><MessageSquare size={14}/></div>
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600 shrink-0"><MessageSquare size={14}/></div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
-                <h1 className="font-bold text-[15px] truncate">{currentRun.label}</h1>
-                <span className="bg-sky-100 text-sky-700 text-[10px] font-bold px-1.5 py-0.5 rounded">공식</span>
+                <h1 className="font-bold text-[15px] truncate text-slate-900">{currentRun.label}</h1>
+                <span className="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">공식</span>
               </div>
-              <p className="text-[11px] text-gray-500 truncate mt-0.5">{currentRun.desc}</p>
+              <p className="text-[11px] text-slate-500 truncate mt-0.5">{currentRun.desc}</p>
             </div>
           </div>
         </div>
         {/* Right header (above RAG panel) */}
-        <div className="w-80 flex items-center justify-between px-4 border-l shrink-0">
-          <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">
+        <div className="w-80 flex items-center justify-between px-4 shrink-0">
+          <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full ring-1 ring-emerald-200/60">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"/>
             <span className="text-[11px] font-bold">내부망 연결</span>
           </div>
           <div className="flex items-center space-x-0.5">
-            <button onClick={()=>toast('대화 도움말','info')} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"><MessageSquare size={15}/></button>
-            <button onClick={()=>toast('도움말','info')} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"><AlertCircle size={15}/></button>
-            <button onClick={()=>setShowRight(!showRight)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg" title="RAG 패널 토글"><Columns size={15}/></button>
+            <button onClick={()=>toast('대화 도움말','info')} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg"><MessageSquare size={15}/></button>
+            <button onClick={()=>toast('도움말','info')} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg"><AlertCircle size={15}/></button>
+            <button onClick={()=>setShowRight(!showRight)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg" title="RAG 패널 토글"><Columns size={15}/></button>
           </div>
         </div>
       </header>
 
       {/* ============ BODY (3-column) ============ */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden gap-3 p-3 pt-0">
         {/* ----- LEFT SIDEBAR ----- */}
-        <aside className="w-64 bg-white border-r flex flex-col shrink-0">
+        <aside className="w-64 bg-white rounded-2xl flex flex-col shrink-0 shadow-sm ring-1 ring-slate-200/70 overflow-hidden">
           {/* Tabs */}
           <div className="px-3 pt-3 pb-2">
-            <div className="flex bg-gray-100 rounded-lg p-0.5">
+            <div className="flex bg-slate-100 rounded-xl p-1">
               {['일반','에이전트','보안'].map(t=>(
-                <button key={t} onClick={()=>setTab(t)} className={`flex-1 px-2 py-1.5 rounded-md text-[11px] font-bold transition-all ${tab===t?'bg-white shadow-sm text-blue-700':'text-gray-500 hover:text-gray-700'}`}>{t}</button>
+                <button key={t} onClick={()=>setTab(t)} className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all ${tab===t?'bg-slate-900 text-white shadow-sm':'text-slate-500 hover:text-slate-700'}`}>{t}</button>
               ))}
             </div>
           </div>
 
           {/* New chat button */}
           <div className="px-3 pb-3">
-            <button onClick={newChat} className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center shadow-sm transition-all">
+            <button onClick={newChat} className="w-full bg-slate-900 hover:bg-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center shadow-sm transition-all">
               <Plus size={14} className="mr-1.5"/>새 대화 시작
             </button>
           </div>
@@ -5257,14 +5257,14 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
           {/* Workspace */}
           <div className="px-3 pb-1">
             <div className="flex items-center justify-between px-1 mb-1.5">
-              <div className="text-[10px] font-bold text-gray-400 tracking-wider">지식 영역 · WORKSPACE</div>
-              <ChevronDown size={11} className="text-gray-400"/>
+              <div className="text-[10px] font-bold text-slate-400 tracking-wider">지식 영역 · WORKSPACE</div>
+              <ChevronDown size={11} className="text-slate-400"/>
             </div>
             <div className="space-y-1">
               {KOGAS_WORKSPACES.map(w=>(
-                <div key={w.id} onClick={()=>setActiveWorkspace(w.id)} className={`group flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs ${activeWorkspace===w.id?'bg-blue-50 border border-dashed border-blue-400':'hover:bg-gray-50 border border-transparent'}`}>
-                  <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${w.iconBg} flex items-center justify-center text-white shrink-0`}><w.icon size={11}/></div>
-                  <span className={`flex-1 truncate font-medium ${activeWorkspace===w.id?'text-blue-700':'text-gray-700'}`}>{w.name}</span>
+                <div key={w.id} onClick={()=>setActiveWorkspace(w.id)} className={`group flex items-center space-x-2 px-2 py-1.5 rounded-xl cursor-pointer text-xs transition-all ${activeWorkspace===w.id?'bg-sky-50 ring-1 ring-sky-200':'hover:bg-slate-50'}`}>
+                  <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${w.iconBg} flex items-center justify-center text-white shrink-0 shadow-sm`}><w.icon size={11}/></div>
+                  <span className={`flex-1 truncate font-medium ${activeWorkspace===w.id?'text-sky-800':'text-slate-700'}`}>{w.name}</span>
                 </div>
               ))}
             </div>
@@ -5272,11 +5272,11 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
 
           {/* Work runs */}
           <div className="px-3 pt-3 pb-1">
-            <div className="px-1 mb-1.5 text-[10px] font-bold text-gray-400 tracking-wider">업무 룬</div>
+            <div className="px-1 mb-1.5 text-[10px] font-bold text-slate-400 tracking-wider">업무 룬</div>
             <div className="space-y-0.5">
               {KOGAS_WORK_RUNS.map(r=>(
-                <div key={r.id} onClick={()=>{setActiveWorkRun(r.id);newChat();}} className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs ${activeWorkRun===r.id?'bg-blue-50 text-blue-700 font-bold':'hover:bg-gray-50 text-gray-700'}`}>
-                  <r.icon size={13} className={activeWorkRun===r.id?'text-blue-600':'text-gray-400'}/>
+                <div key={r.id} onClick={()=>{setActiveWorkRun(r.id);newChat();}} className={`flex items-center space-x-2 px-2.5 py-2 rounded-xl cursor-pointer text-xs transition-all ${activeWorkRun===r.id?'bg-sky-100 text-sky-800 font-bold':'hover:bg-slate-50 text-slate-700'}`}>
+                  <r.icon size={13} className={activeWorkRun===r.id?'text-sky-700':'text-slate-400'}/>
                   <span>{r.label}</span>
                 </div>
               ))}
@@ -5286,59 +5286,58 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
           {/* Recent */}
           <div className="px-3 pt-3 pb-1 flex-1 overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between px-1 mb-1.5">
-              <div className="text-[10px] font-bold text-gray-400 tracking-wider">최근 대화</div>
-              <button onClick={()=>toast('새로고침','info')} className="p-0.5 text-gray-400 hover:text-gray-600"><RefreshCw size={10}/></button>
+              <div className="text-[10px] font-bold text-slate-400 tracking-wider">최근 대화</div>
+              <button onClick={()=>toast('새로고침','info')} className="p-0.5 text-slate-400 hover:text-slate-600"><RefreshCw size={10}/></button>
             </div>
             <div className="space-y-0.5">
               {convs.map(c=>(
-                <div key={c.id} onClick={()=>{setActiveConvId(c.id);setMessages([{role:'user',content:c.title,time:c.time},{role:'assistant',time:c.time,data:TOM_SAMPLE_RESPONSES.greeting}]);}} className={`group flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs ${activeConvId===c.id?'bg-blue-50':'hover:bg-gray-50'}`}>
-                  <MessageSquare size={11} className="text-gray-400 shrink-0"/>
-                  <span className="flex-1 truncate text-gray-700">{c.title}</span>
-                  <span className="text-[9px] text-gray-400 shrink-0">{c.time}</span>
-                  {c.star&&<Star size={10} className="text-yellow-500 fill-yellow-400 shrink-0"/>}
+                <div key={c.id} onClick={()=>{setActiveConvId(c.id);setMessages([{role:'user',content:c.title,time:c.time},{role:'assistant',time:c.time,data:TOM_SAMPLE_RESPONSES.greeting}]);}} className={`group flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs ${activeConvId===c.id?'bg-sky-50':'hover:bg-slate-50'}`}>
+                  <MessageSquare size={11} className="text-slate-400 shrink-0"/>
+                  <span className="flex-1 truncate text-slate-700">{c.title}</span>
+                  <span className="text-[9px] text-slate-400 shrink-0">{c.time}</span>
+                  {c.star&&<Star size={10} className="text-amber-400 fill-amber-400 shrink-0"/>}
                 </div>
               ))}
             </div>
           </div>
 
           {/* Info shortcuts */}
-          <div className="px-3 py-2 border-t">
-            <div className="px-1 mb-1 text-[10px] font-bold text-gray-400 tracking-wider">이용 정보</div>
+          <div className="px-3 py-2 border-t border-slate-100">
+            <div className="px-1 mb-1 text-[10px] font-bold text-slate-400 tracking-wider">이용 정보</div>
             <div className="space-y-0.5">
-              <div onClick={()=>toast('공지사항 보기','info')} className="flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs hover:bg-gray-50 text-gray-700"><Megaphone size={11} className="text-gray-400"/><span>공지사항</span></div>
-              <div onClick={()=>toast('FAQ 보기','info')} className="flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs hover:bg-gray-50 text-gray-700"><AlertCircle size={11} className="text-gray-400"/><span>FAQ</span></div>
+              <div onClick={()=>toast('공지사항 보기','info')} className="flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs hover:bg-slate-50 text-slate-700"><Megaphone size={11} className="text-slate-400"/><span>공지사항</span></div>
+              <div onClick={()=>toast('FAQ 보기','info')} className="flex items-center space-x-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs hover:bg-slate-50 text-slate-700"><AlertCircle size={11} className="text-slate-400"/><span>FAQ</span></div>
             </div>
           </div>
 
           {/* User profile */}
-          <div className="px-3 py-2 border-t bg-gray-50/60">
+          <div className="px-3 py-2.5 border-t border-slate-100 bg-slate-50/60">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">김</div>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">김</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-1">
-                  <span className="text-xs font-bold truncate">김◯◯ 과장</span>
+                  <span className="text-xs font-bold truncate text-slate-800">김◯◯ 과장</span>
                   <span className="bg-amber-100 text-amber-700 text-[8px] font-bold px-1 rounded">BSO</span>
                 </div>
               </div>
-              <button onClick={onSwitchToAdmin} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-white rounded" title="관리자 콘솔"><Settings size={12}/></button>
-              <button onClick={onOpenMypage} className="p-1 text-gray-400 hover:text-gray-700 hover:bg-white rounded" title="마이페이지"><ChevronDown size={12}/></button>
+              <button onClick={onSwitchToAdmin} className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white rounded" title="관리자 콘솔"><Settings size={12}/></button>
+              <button onClick={onOpenMypage} className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white rounded" title="마이페이지"><ChevronDown size={12}/></button>
             </div>
           </div>
         </aside>
 
         {/* ----- CENTER MAIN ----- */}
-        <main className="flex-1 flex flex-col min-w-0 bg-[#F7F9FC]">
+        <main className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/70 overflow-hidden">
           {/* Notice bar */}
           {showNotice && (
-            <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-b border-amber-200/70 px-6 py-2.5 flex items-center justify-between shrink-0">
+            <div className="bg-amber-50 border-b border-amber-200/70 px-6 py-2.5 flex items-center justify-between shrink-0">
               <div className="flex items-center space-x-2 min-w-0">
-                <span className="bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">공지</span>
-                <span className="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">[{KOGAS_NOTICE.badge}]</span>
-                <span className="text-xs text-gray-700 truncate"><b>{KOGAS_NOTICE.title}</b></span>
+                <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">공지</span>
+                <span className="text-xs text-slate-800 truncate"><b className="text-red-600">[{KOGAS_NOTICE.badge}]</b> <b>{KOGAS_NOTICE.title}</b></span>
               </div>
               <div className="flex items-center space-x-2 shrink-0">
-                <span className="text-[11px] text-gray-500">{KOGAS_NOTICE.date}</span>
-                <button onClick={()=>setShowNotice(false)} className="p-0.5 text-gray-400 hover:text-gray-600"><X size={12}/></button>
+                <span className="text-[11px] text-slate-500">{KOGAS_NOTICE.date}</span>
+                <button onClick={()=>setShowNotice(false)} className="p-0.5 text-slate-400 hover:text-slate-600"><X size={12}/></button>
               </div>
             </div>
           )}
@@ -5347,19 +5346,19 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
           <div className="flex-1 overflow-y-auto">
             {messages.length===0 ? (
               <div className="min-h-full flex flex-col items-center justify-center px-8 py-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center text-white mb-5 shadow-xl shadow-blue-200/50">
+                <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center text-sky-500 mb-5 shadow-lg shadow-sky-100/80 ring-8 ring-sky-50">
                   <Sparkles size={28}/>
                 </div>
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-2">안녕하세요, 사용자님!</h2>
-                <p className="text-sm text-gray-500 mb-8">{currentRun.desc}</p>
-                <div className="grid grid-cols-2 gap-3 w-full max-w-3xl">
+                <h2 className="text-[28px] font-extrabold text-slate-900 mb-2">안녕하세요, 사용자님!</h2>
+                <p className="text-sm text-slate-500 mb-9">{currentRun.desc}</p>
+                <div className="grid grid-cols-2 gap-3.5 w-full max-w-3xl">
                   {KOGAS_CAPABILITIES.map((c,i)=>(
-                    <div key={i} onClick={()=>generate(c.q)} className="bg-white rounded-2xl border p-4 hover:border-blue-400 hover:shadow-lg cursor-pointer transition-all group">
+                    <div key={i} onClick={()=>generate(c.q)} className="bg-white rounded-2xl ring-1 ring-slate-200 p-5 hover:ring-sky-300 hover:shadow-md cursor-pointer transition-all group">
                       <div className="flex items-start space-x-3">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.iconBg} flex items-center justify-center ${c.iconColor} shrink-0 shadow-sm group-hover:scale-105 transition-transform`}><c.icon size={18}/></div>
+                        <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${c.iconBg} flex items-center justify-center ${c.iconColor} shrink-0 shadow-md group-hover:scale-105 transition-transform`}><c.icon size={18}/></div>
                         <div className="min-w-0 flex-1">
-                          <div className="font-bold text-sm mb-1">{c.t}</div>
-                          <div className="text-[11px] text-gray-500 leading-relaxed line-clamp-2">{c.q}</div>
+                          <div className="font-bold text-[14px] text-slate-900 mb-1.5">{c.t}</div>
+                          <div className="text-[12px] text-slate-500 leading-relaxed line-clamp-2">{c.q}</div>
                         </div>
                       </div>
                     </div>
@@ -5371,12 +5370,12 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                 {messages.map((m,i)=>(
                   <div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}>
                     {m.role==='assistant' && (
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center text-white mr-3 mt-1 shrink-0 shadow-sm">
-                        <Sparkles size={14}/>
+                      <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-sky-300 via-sky-500 to-blue-600 flex items-center justify-center text-white mr-3 mt-1 shrink-0 shadow-md shadow-sky-200/50">
+                        <Sparkles size={15}/>
                       </div>
                     )}
                     {m.role==='user' ? (
-                      <div className="max-w-[75%] bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-2xl rounded-tr-md px-4 py-2.5 shadow-sm">
+                      <div className="max-w-[75%] bg-sky-500 text-white rounded-2xl rounded-tr-md px-4 py-2.5 shadow-sm">
                         <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.content}</div>
                       </div>
                     ) : (
@@ -5397,14 +5396,14 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                 ))}
                 {sending && (
                   <div className="flex items-start">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center text-white mr-3 mt-1 shrink-0 shadow-sm"><Sparkles size={14}/></div>
-                    <div className="bg-white border rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-sky-300 via-sky-500 to-blue-600 flex items-center justify-center text-white mr-3 mt-1 shrink-0 shadow-md shadow-sky-200/50"><Sparkles size={15}/></div>
+                    <div className="bg-white ring-1 ring-slate-200 rounded-2xl px-4 py-3 shadow-sm">
                       <div className="flex items-center space-x-1.5">
-                        <span className="text-[11px] text-gray-500">답변 작성 중</span>
+                        <span className="text-[11px] text-slate-500">답변 작성 중</span>
                         <div className="flex space-x-1">
-                          <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{animationDelay:'0s'}}/>
-                          <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{animationDelay:'0.2s'}}/>
-                          <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{animationDelay:'0.4s'}}/>
+                          <div className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'0s'}}/>
+                          <div className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'0.2s'}}/>
+                          <div className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'0.4s'}}/>
                         </div>
                         <button onClick={()=>setSending(false)} className="ml-2 text-[10px] text-red-500 hover:underline">중지</button>
                       </div>
@@ -5417,22 +5416,22 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
           </div>
 
           {/* Input bar */}
-          <div className="px-8 pb-5 pt-1 shrink-0">
+          <div className="px-8 pb-5 pt-1 shrink-0 bg-white">
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm focus-within:border-blue-400 focus-within:shadow-md transition-all">
-                <textarea value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send();}}} rows={1} placeholder="사내 규정이나 기술 매뉴얼에 대해 자유롭게 질문하세요." className="w-full px-1 py-1 text-sm outline-none resize-none max-h-32 placeholder:text-gray-400"/>
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 focus-within:border-sky-400 focus-within:bg-white focus-within:shadow-md transition-all">
+                <textarea value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send();}}} rows={1} placeholder="사내 규정이나 기술 매뉴얼에 대해 자유롭게 질문하세요." className="w-full px-1 py-1 text-sm outline-none resize-none max-h-32 placeholder:text-slate-400 bg-transparent"/>
                 <div className="flex items-center justify-between mt-2">
                   <div className="flex items-center space-x-0.5">
-                    <button onClick={()=>toast('파일 첨부 (데모)','info')} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg" title="파일 첨부"><Paperclip size={14}/></button>
-                    <button onClick={()=>toast('음성 입력 (데모)','info')} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg" title="음성 입력"><Mic size={14}/></button>
+                    <button onClick={()=>toast('파일 첨부 (데모)','info')} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-white rounded-lg" title="파일 첨부"><Paperclip size={14}/></button>
+                    <button onClick={()=>toast('음성 입력 (데모)','info')} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-white rounded-lg" title="음성 입력"><Mic size={14}/></button>
                   </div>
                   <div className="flex items-center space-x-1.5">
-                    <button onClick={()=>setKnowledgeRef(v=>!v)} className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${knowledgeRef?'bg-blue-50 text-blue-700 ring-1 ring-blue-300':'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} title="RAG (사내 문서 참조)">
-                      <span className={`w-1.5 h-1.5 rounded-full ${knowledgeRef?'bg-blue-500':'bg-gray-400'}`}/>
+                    <button onClick={()=>setKnowledgeRef(v=>!v)} className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-bold transition-colors ${knowledgeRef?'bg-sky-50 text-sky-700 ring-1 ring-sky-200':'bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-slate-50'}`} title="RAG (사내 문서 참조)">
+                      <span className={`w-1.5 h-1.5 rounded-full ${knowledgeRef?'bg-sky-500':'bg-slate-300'}`}/>
                       <span>지식참조</span>
                     </button>
                     <div className="relative">
-                      <button onClick={()=>setShowModelMenu(v=>!v)} className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-100">
+                      <button onClick={()=>setShowModelMenu(v=>!v)} className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-bold bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>
                         <span>{model}</span>
                         <ChevronDown size={9}/>
@@ -5440,63 +5439,63 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                       {showModelMenu && (
                         <div className="absolute bottom-full right-0 mb-1 bg-white border rounded-lg shadow-xl min-w-[140px] z-10">
                           {['GPT-OSS','GPT-4o','Llama-3-Kor','EXAONE-3.0'].map(m=>(
-                            <div key={m} onClick={()=>{setModel(m);setShowModelMenu(false);}} className="px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs flex items-center justify-between">
-                              {m}{model===m&&<Check size={10} className="text-blue-600"/>}
+                            <div key={m} onClick={()=>{setModel(m);setShowModelMenu(false);}} className="px-3 py-1.5 hover:bg-slate-50 cursor-pointer text-xs flex items-center justify-between">
+                              {m}{model===m&&<Check size={10} className="text-sky-600"/>}
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
-                    <button onClick={send} disabled={!input.trim()||sending} className={`p-2 rounded-xl transition-all ${input.trim()&&!sending?'bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:shadow-md':'bg-gray-100 text-gray-300'}`}>
+                    <button onClick={send} disabled={!input.trim()||sending} className={`p-2 rounded-xl transition-all ${input.trim()&&!sending?'bg-sky-500 text-white hover:bg-sky-600 shadow-md shadow-sky-200':'bg-slate-100 text-slate-300'}`}>
                       <Send size={14}/>
                     </button>
                   </div>
                 </div>
               </div>
-              <p className="text-[10px] text-gray-400 text-center mt-2.5">AI 답변에는 참고용입니다. 중요한 사항은 반드시 담당자 또는 출처를 통해 확인해주세요.</p>
+              <p className="text-[10px] text-slate-400 text-center mt-2.5">AI 답변에는 참고용입니다. 중요한 사항은 반드시 담당자 또는 출처를 통해 확인해주세요.</p>
             </div>
           </div>
         </main>
 
         {/* ----- RIGHT SIDEBAR (RAG) ----- */}
         {showRight && (
-          <aside className="w-80 bg-white border-l flex flex-col shrink-0">
-            {/* Header inside (below top bar) */}
-            <div className="px-4 py-3 border-b bg-white">
+          <aside className="w-80 bg-white rounded-2xl flex flex-col shrink-0 shadow-sm ring-1 ring-slate-200/70 overflow-hidden">
+            {/* Header */}
+            <div className="px-4 py-3 bg-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Database size={14} className="text-blue-600"/>
-                  <span className="font-bold text-[13px]">RAG 연동 문서</span>
-                  <span className="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center"><span className="w-1 h-1 rounded-full bg-emerald-500 mr-1"/>VectorDB 연결됨</span>
+                  <Database size={14} className="text-sky-600"/>
+                  <span className="font-bold text-[13px] text-slate-900">RAG 연동 문서</span>
+                  <span className="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full ring-1 ring-emerald-200/60 flex items-center"><span className="w-1 h-1 rounded-full bg-emerald-500 mr-1"/>VectorDB 연결됨</span>
                 </div>
-                <button onClick={()=>setShowRight(false)} className="p-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded"><X size={13}/></button>
+                <button onClick={()=>setShowRight(false)} className="p-0.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><X size={13}/></button>
               </div>
               {/* Sub-tabs */}
-              <div className="flex bg-gray-100 rounded-lg p-0.5 mt-2.5">
+              <div className="flex bg-slate-100 rounded-xl p-1 mt-3">
                 {['문서 목록','연동 도구','내 RAG'].map(t=>(
-                  <button key={t} onClick={()=>setRightTab(t)} className={`flex-1 px-2 py-1 rounded-md text-[10px] font-bold transition-all ${rightTab===t?'bg-white shadow-sm text-blue-700':'text-gray-500 hover:text-gray-700'}`}>{t}</button>
+                  <button key={t} onClick={()=>setRightTab(t)} className={`flex-1 px-2 py-1.5 rounded-lg text-[10px] font-bold transition-all ${rightTab===t?'bg-white shadow-sm text-sky-700':'text-slate-500 hover:text-slate-700'}`}>{t}</button>
                 ))}
               </div>
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 bg-slate-50/40">
               {rightTab==='내 RAG' && (
                 <>
                   {/* My knowledge areas */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs font-bold text-gray-700">내 지식 영역</div>
-                      <button onClick={()=>toast('영역 추가 (데모)','info')} className="text-[10px] text-blue-600 hover:underline font-medium flex items-center"><Plus size={10} className="mr-0.5"/>영역 추가</button>
+                      <div className="text-xs font-bold text-slate-700">내 지식 영역</div>
+                      <button onClick={()=>toast('영역 추가 (데모)','info')} className="text-[10px] text-sky-600 hover:underline font-medium flex items-center"><Plus size={10} className="mr-0.5"/>영역 추가</button>
                     </div>
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-2 gap-2">
                       {KOGAS_KA_AREAS.map(a=>(
-                        <button key={a.id} onClick={()=>setActiveArea(a.id)} className={`p-2 rounded-lg border-2 text-left transition-all ${activeArea===a.id?'bg-blue-50 border-blue-400 ring-1 ring-blue-200':'bg-white border-gray-200 hover:border-blue-300'}`}>
-                          <div className="flex items-center justify-between mb-0.5">
-                            <FolderOpen size={11} className={activeArea===a.id?'text-blue-600':'text-gray-400'}/>
-                            <span className={`text-[9px] font-bold px-1 py-0.5 rounded ${activeArea===a.id?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-500'}`}>{a.count}개</span>
+                        <button key={a.id} onClick={()=>setActiveArea(a.id)} className={`p-2.5 rounded-xl text-left transition-all ${activeArea===a.id?'bg-sky-100 ring-1 ring-sky-300':'bg-white ring-1 ring-slate-200 hover:ring-sky-200'}`}>
+                          <div className="flex items-center space-x-1.5 mb-1">
+                            <FolderOpen size={12} className={activeArea===a.id?'text-sky-700':'text-slate-400'}/>
+                            <span className={`text-[10px] font-bold leading-tight ${activeArea===a.id?'text-sky-800':'text-slate-700'}`}>{a.name}</span>
                           </div>
-                          <div className={`text-[10px] font-bold leading-tight ${activeArea===a.id?'text-blue-700':'text-gray-700'}`}>{a.name}</div>
+                          <span className={`text-[9px] font-bold ${activeArea===a.id?'text-sky-700':'text-slate-500'}`}>{a.count}개</span>
                         </button>
                       ))}
                     </div>
@@ -5505,33 +5504,33 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                   {/* Documents */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs font-bold text-gray-700">{KOGAS_KA_AREAS.find(a=>a.id===activeArea)?.name} 문서</div>
-                      <button onClick={()=>toast('업로드 (데모)','info')} className="text-[10px] text-blue-600 hover:underline font-medium flex items-center"><UploadCloud size={10} className="mr-0.5"/>업로드</button>
+                      <div className="text-xs font-bold text-slate-700">{KOGAS_KA_AREAS.find(a=>a.id===activeArea)?.name} 문서</div>
+                      <button onClick={()=>toast('업로드 (데모)','info')} className="text-[10px] text-sky-600 hover:underline font-medium flex items-center"><UploadCloud size={10} className="mr-0.5"/>업로드</button>
                     </div>
                     <div className="space-y-1.5">
                       {currentDocs.map(d=>(
-                        <div key={d.id} className={`group flex items-center space-x-2 p-2 rounded-lg border ${d.checked?'bg-blue-50/50 border-blue-200':'bg-white border-gray-200'} hover:border-blue-300 transition-colors`}>
-                          <button onClick={()=>toggleDoc(d.id)} className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${d.checked?'bg-blue-600 border-blue-600':'bg-white border-gray-300 hover:border-blue-400'}`}>
+                        <div key={d.id} className={`group flex items-center space-x-2 p-2.5 rounded-xl ${d.checked?'bg-white ring-1 ring-sky-200':'bg-white ring-1 ring-slate-200'} hover:ring-sky-300 transition-colors`}>
+                          <button onClick={()=>toggleDoc(d.id)} className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${d.checked?'bg-sky-500 border-sky-500':'bg-white border-slate-300 hover:border-sky-400'}`}>
                             {d.checked&&<Check size={10} className="text-white"/>}
                           </button>
-                          <div className={`w-7 h-7 rounded ${extColor(d.ext)} flex items-center justify-center shrink-0`}>
-                            <span className="text-[8px] font-bold">{extLabel(d.ext)}</span>
+                          <div className={`w-8 h-8 rounded-lg ${extColor(d.ext)} flex items-center justify-center shrink-0`}>
+                            <span className="text-[9px] font-bold">{extLabel(d.ext)}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[11px] font-medium truncate">{d.name}</div>
-                            <div className="text-[9px] text-gray-400">{d.size}</div>
+                            <div className="text-[11px] font-medium truncate text-slate-800">{d.name}</div>
+                            <div className="text-[9px] text-slate-400">{d.size}</div>
                           </div>
-                          <button onClick={()=>removeDoc(d.id)} className="p-0.5 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><X size={11}/></button>
+                          <button onClick={()=>removeDoc(d.id)} className="p-0.5 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><X size={11}/></button>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-2 text-[10px] text-gray-400 text-center">{checkedCount} / {currentDocs.length} 문서 선택됨</div>
+                    <div className="mt-2 text-[10px] text-slate-400 text-center">{checkedCount} / {currentDocs.length} 문서 선택됨</div>
                   </div>
 
                   {/* Security note */}
-                  <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3">
+                  <div className="bg-amber-50 ring-1 ring-amber-200 rounded-2xl p-3">
                     <div className="flex items-start space-x-2">
-                      <div className="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center shrink-0 mt-0.5"><Lock size={10} className="text-amber-700"/></div>
+                      <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0 mt-0.5"><Lock size={11} className="text-amber-700"/></div>
                       <div className="min-w-0 flex-1">
                         <div className="text-[11px] font-bold text-amber-900 mb-1">개인 영역 안전 보장</div>
                         <div className="text-[10px] text-amber-800 leading-relaxed">체크된 문서만 답변에 포함됩니다. 다 사용자에 격리된 개인 보안 영역에 저장됩니다.</div>
