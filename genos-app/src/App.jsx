@@ -5024,18 +5024,79 @@ const KOGAS_WORKSPACES = [
   {id:'ws3',name:'정보보안 실태조사 TF',icon:Shield,iconBg:'from-amber-500 to-orange-500'},
 ];
 
-const KOGAS_WORK_RUNS = [
-  {id:'general',label:'일반 질의',icon:MessageSquare,desc:'사내 규정, 기술 매뉴얼, 업무 지식에 대해 자유롭게 질문하세요'},
-  {id:'review',label:'문서 검토',icon:FileText,desc:'PDF, DOCX 등 문서를 첨부하면 핵심 내용을 정리하고 검토합니다'},
-  {id:'translate',label:'번역·요약',icon:Languages,desc:'한국어 ↔ 영어 등 기술 문서 번역 및 핵심 요약을 제공합니다'},
-  {id:'report',label:'보고서 작성',icon:NotebookPen,desc:'데이터/메모를 입력하면 표준 양식의 보고서 초안을 생성합니다'},
+const KOGAS_WORK_MODES = [
+  {id:'general',label:'일반 질의',icon:MessageSquare,desc:'사내 규정, 기술 매뉴얼, 업무 지식에 대해 자유롭게 질문하세요',
+    capabilities:[
+      {icon:Search,t:'PSV 점검 주기 확인',q:'평택기지 초저온 안전밸브(PSV) 정기 점검 주기가 어떻게 되나요?',iconBg:'from-blue-500 to-sky-500'},
+      {icon:BarChart3,t:'AI 사업 예산 조회',q:'생성형 AI 관련 진행 중인 사업의 총 예산과 사업 기간을 알려주세요.',iconBg:'from-emerald-500 to-teal-500'},
+      {icon:Settings,t:'취업규칙 개정사항',q:'취업규칙 2026년 개정 내용 중 주요 변경 사항을 요약해줘',iconBg:'from-orange-500 to-amber-500'},
+      {icon:FileText,t:'출장비 정산 기준',q:'사내 출장비 정산 시 1일 식사·교통·숙박비 한도 기준이 어떻게 되나요?',iconBg:'from-rose-500 to-red-500'},
+    ]},
+  {id:'review',label:'문서 검토',icon:FileText,desc:'PDF, DOCX 등 문서를 첨부하면 핵심 내용을 정리하고 검토합니다',
+    capabilities:[
+      {icon:FileText,t:'계약서 핵심 조항 추출',q:'첨부한 계약서에서 분쟁 가능성이 있는 조항을 식별해 요약해줘',iconBg:'from-blue-500 to-sky-500'},
+      {icon:BookOpen,t:'기술 매뉴얼 요약',q:'첨부 PDF 매뉴얼의 핵심 절차와 안전 유의사항을 요약해줘',iconBg:'from-emerald-500 to-teal-500'},
+      {icon:GitBranch,t:'개정안 비교 분석',q:'기존 규정과 개정안을 비교해 변경 사항을 표로 정리해줘',iconBg:'from-orange-500 to-amber-500'},
+      {icon:AlertTriangle,t:'리스크 항목 식별',q:'첨부 보고서에서 리스크/이슈로 분류될 항목을 우선순위와 함께 추출해줘',iconBg:'from-rose-500 to-red-500'},
+    ]},
+  {id:'translate',label:'번역·요약',icon:Languages,desc:'한국어 ↔ 영어 등 기술 문서 번역 및 핵심 요약을 제공합니다',
+    capabilities:[
+      {icon:Languages,t:'한 → 영 기술 번역',q:'다음 한국어 기술 매뉴얼을 영문으로 번역해줘 (용어집 자동 적용)',iconBg:'from-blue-500 to-sky-500'},
+      {icon:Languages,t:'영 → 한 자료 번역',q:'첨부한 영문 벤더 제안서를 한국어로 번역하고 핵심만 요약해줘',iconBg:'from-emerald-500 to-teal-500'},
+      {icon:FileText,t:'장문 보고서 요약',q:'30페이지 분량 보고서를 1페이지 임원 요약본으로 정리해줘',iconBg:'from-orange-500 to-amber-500'},
+      {icon:NotebookPen,t:'회의 녹취록 정리',q:'녹취록을 결정 사항/액션 아이템 중심의 회의록으로 정리해줘',iconBg:'from-rose-500 to-red-500'},
+    ]},
 ];
 
-const KOGAS_CAPABILITIES = [
-  {icon:Search,t:'PSV 점검 주기 확인',q:'평택기지 초저온 안전밸브(PSV) 정기 점검 주기가 어떻게 되나요?',iconBg:'from-blue-500 to-sky-500',iconColor:'text-white'},
-  {icon:BarChart3,t:'AI 사업 예산 조회',q:'생성형 AI 관련 진행 중인 사업의 총 예산과 사업 기간을 알려주세요.',iconBg:'from-emerald-500 to-teal-500',iconColor:'text-white'},
-  {icon:Settings,t:'취업규칙 개정사항',q:'취업규칙 2026년 개정 내용 중 주요 변경 사항을 요약해줘',iconBg:'from-orange-500 to-amber-500',iconColor:'text-white'},
-  {icon:FileText,t:'출장비 정산 기준',q:'사내 출장비 정산 시 1일 식사·교통·숙박비 한도 기준이 어떻게 되나요?',iconBg:'from-rose-500 to-red-500',iconColor:'text-white'},
+const KOGAS_AGENTS = [
+  {id:'agent-report',label:'보고서 작성 에이전트',icon:NotebookPen,color:'from-emerald-500 to-teal-500',badge:'NEW',
+    desc:'주간/월간 실적, 위험성 평가, 회의록 등 사내 표준 양식 보고서를 자동으로 작성합니다.',
+    capabilities:[
+      {icon:NotebookPen,t:'주간 실적 보고서',q:'이번 주 PSV 점검 5건 완료, 배관 누설 탐지 2건 완료를 주간 실적 보고서로 작성해줘',iconBg:'from-emerald-500 to-teal-500'},
+      {icon:BarChart3,t:'월간 운영 보고',q:'이번 달 정비기술처 KPI/실적/주요 이슈를 월간 운영 보고서로 정리해줘',iconBg:'from-blue-500 to-sky-500'},
+      {icon:AlertTriangle,t:'위험성 평가서',q:'평택기지 LNG 저장탱크 점검 작업에 대한 위험성 평가서를 작성해줘',iconBg:'from-orange-500 to-amber-500'},
+      {icon:FileText,t:'회의록 작성',q:'2/26 정비기술처 주간 회의 메모를 사내 양식의 회의록으로 정리해줘',iconBg:'from-rose-500 to-red-500'},
+    ]},
+  {id:'agent-safety',label:'안전 점검 어시스턴트',icon:Shield,color:'from-red-500 to-rose-600',badge:'필수',
+    desc:'PSV, BOG, LNG 저장탱크 등 설비 안전 점검 절차와 비상 대응을 안내합니다.',
+    capabilities:[
+      {icon:Shield,t:'PSV 분해 점검 절차',q:'초저온 안전밸브(PSV) 분해 점검(Overhaul)과 POP Test 절차를 단계별로 안내해줘',iconBg:'from-red-500 to-rose-500'},
+      {icon:AlertTriangle,t:'가스 누출 대응',q:'배관 누설 감지 시 초기 30분 내 대응 절차를 알려줘',iconBg:'from-orange-500 to-red-500'},
+      {icon:BookOpen,t:'안전 매뉴얼 검색',q:'중대재해처벌법 기준 LNG 저장설비 안전 점검 의무 항목은?',iconBg:'from-amber-500 to-orange-500'},
+      {icon:CheckSquare,t:'점검 체크리스트',q:'평택기지 LNG 저장탱크 일일 점검 체크리스트를 생성해줘',iconBg:'from-blue-500 to-sky-500'},
+    ]},
+  {id:'agent-hr',label:'HR 도우미',icon:Users,color:'from-emerald-500 to-teal-600',badge:'인기',
+    desc:'연차, 복리후생, 인사 규정, 출장비 등 HR 관련 질문에 24시간 즉시 응답합니다.',
+    capabilities:[
+      {icon:Users,t:'연차 사용 가이드',q:'2026년 연차 사용 기준과 미사용 연차 이월 규정을 알려줘',iconBg:'from-emerald-500 to-teal-500'},
+      {icon:Settings,t:'취업규칙 개정',q:'취업규칙 2026년 개정 내용 중 주요 변경 사항을 요약해줘',iconBg:'from-blue-500 to-sky-500'},
+      {icon:FileText,t:'출장비 정산',q:'사내 출장비 정산 시 1일 식사·교통·숙박비 한도 기준이 어떻게 되나요?',iconBg:'from-orange-500 to-amber-500'},
+      {icon:Briefcase,t:'복리후생 안내',q:'2026년 복리후생 제도 변경 사항과 신청 방법을 정리해줘',iconBg:'from-rose-500 to-red-500'},
+    ]},
+  {id:'agent-legal',label:'법무·계약 어시스턴트',icon:Briefcase,color:'from-purple-500 to-fuchsia-600',badge:'',
+    desc:'계약서 검토, 리스크 조항 식별, 사내 법령 검색을 지원합니다.',
+    capabilities:[
+      {icon:FileText,t:'계약서 검토',q:'첨부 계약서에서 회사에 불리한 조항을 식별하고 협상 포인트를 제시해줘',iconBg:'from-purple-500 to-fuchsia-500'},
+      {icon:Briefcase,t:'수의계약 한도',q:'수의계약 가능한 금액 한도와 사내 결재 절차를 알려줘',iconBg:'from-blue-500 to-sky-500'},
+      {icon:AlertTriangle,t:'리스크 평가',q:'벤더 계약서의 손해배상 조항과 책임 범위 리스크를 평가해줘',iconBg:'from-rose-500 to-red-500'},
+      {icon:BookOpen,t:'법령 검색',q:'고압가스 안전관리법 제29조 정기검사 의무 사항 전문을 찾아줘',iconBg:'from-orange-500 to-amber-500'},
+    ]},
+  {id:'agent-finance',label:'재무·예산 분석',icon:BarChart3,color:'from-amber-500 to-orange-600',badge:'',
+    desc:'예산 집행 현황, 회계전표 작성, ERP 데이터 분석을 지원합니다.',
+    capabilities:[
+      {icon:BarChart3,t:'예산 집행 현황',q:'정비기술처 1분기 예산 집행률과 잔여 예산 현황을 분석해줘',iconBg:'from-amber-500 to-orange-500'},
+      {icon:FileText,t:'전표 자동 작성',q:'2/24 외주 정비 1,200만원 지출 건에 대한 회계전표를 작성해줘',iconBg:'from-emerald-500 to-teal-500'},
+      {icon:TrendingUp,t:'이상 지출 탐지',q:'최근 3개월 부서별 지출 중 평균 대비 30% 이상 초과한 항목을 찾아줘',iconBg:'from-rose-500 to-red-500'},
+      {icon:CheckSquare,t:'결재 대기 정리',q:'현재 내 결재 대기 건과 미결 사항을 우선순위로 정리해줘',iconBg:'from-blue-500 to-sky-500'},
+    ]},
+  {id:'agent-emergency',label:'비상 대응 가이드',icon:AlertTriangle,color:'from-red-600 to-orange-600',badge:'',
+    desc:'가스 누출, 화재, 설비 이상 등 비상 상황에서 실시간 대응 절차를 안내합니다.',
+    capabilities:[
+      {icon:AlertTriangle,t:'가스 누출 대응',q:'LNG 저장탱크 누출 의심 상황에서 1단계~4단계 대응 절차를 안내해줘',iconBg:'from-red-600 to-rose-600'},
+      {icon:Shield,t:'대피 경로 안내',q:'평택기지 본관에서 비상 시 대피 경로와 집결지를 알려줘',iconBg:'from-orange-500 to-red-500'},
+      {icon:MessageSquare,t:'비상 연락망',q:'야간/주말 비상 상황 발생 시 부서별 비상 연락망을 보여줘',iconBg:'from-blue-500 to-sky-500'},
+      {icon:FileText,t:'사고 보고 양식',q:'경미한 안전사고 발생 시 24시간 내 제출해야 할 사고 보고서 양식을 작성해줘',iconBg:'from-rose-500 to-red-500'},
+    ]},
 ];
 
 const KOGAS_RECENT_CONVS = [
@@ -5071,7 +5132,8 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   const toast=useToast();
   const [tab,setTab]=useState('일반');
   const [activeWorkspace,setActiveWorkspace]=useState('ws1');
-  const [activeWorkRun,setActiveWorkRun]=useState('general');
+  const [activeMode,setActiveMode]=useState('general');
+  const [activeAgent,setActiveAgent]=useState(null);
   const [messages,setMessages]=useState([]);
   const [input,setInput]=useState('');
   const [sending,setSending]=useState(false);
@@ -5143,7 +5205,13 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
   };
   useEffect(()=>{endRef.current?.scrollIntoView({behavior:'smooth'});},[messages,sending]);
 
-  const currentRun=KOGAS_WORK_RUNS.find(r=>r.id===activeWorkRun);
+  const currentMode=KOGAS_WORK_MODES.find(r=>r.id===activeMode)||KOGAS_WORK_MODES[0];
+  const currentContext=activeAgent||currentMode;
+  const headerLabel=activeAgent?activeAgent.label:currentMode.label;
+  const headerDesc=activeAgent?activeAgent.desc:currentMode.desc;
+  const headerIcon=activeAgent?activeAgent.icon:currentMode.icon;
+  const headerIconBg=activeAgent?activeAgent.color:null;
+  const capabilities=currentContext.capabilities||[];
   const currentDocs=docs[activeArea]||[];
   const checkedCount=currentDocs.filter(d=>d.checked).length;
 
@@ -5292,15 +5360,27 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
         {/* Center title */}
         <div className="flex-1 flex items-center justify-between px-6 min-w-0">
           <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600 shrink-0"><MessageSquare size={14}/></div>
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${activeAgent?'bg-gradient-to-br '+headerIconBg+' text-white':'bg-sky-50 text-sky-600'}`}>{React.createElement(headerIcon,{size:14})}</div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
-                <h1 className="font-bold text-[15px] truncate text-slate-900">{currentRun.label}</h1>
-                <span className="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">공식</span>
+                <h1 className="font-bold text-[15px] truncate text-slate-900">{headerLabel}</h1>
+                {activeAgent ? (
+                  <>
+                    <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">에이전트</span>
+                    {activeAgent.badge && <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{activeAgent.badge}</span>}
+                  </>
+                ) : (
+                  <span className="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">공식</span>
+                )}
               </div>
-              <p className="text-[11px] text-slate-500 truncate mt-0.5">{currentRun.desc}</p>
+              <p className="text-[11px] text-slate-500 truncate mt-0.5">{headerDesc}</p>
             </div>
           </div>
+          {activeAgent && (
+            <button onClick={()=>{setActiveAgent(null);newChat();toast('일반 모드로 돌아왔습니다','info');}} className="text-[11px] text-slate-500 hover:text-slate-800 hover:bg-slate-100 px-2 py-1 rounded-lg flex items-center shrink-0 ml-3">
+              <X size={12} className="mr-1"/>에이전트 해제
+            </button>
+          )}
         </div>
         {/* Right header (above RAG panel) */}
         <div className="w-80 flex items-center justify-between px-4 shrink-0 border-l border-slate-200">
@@ -5352,18 +5432,68 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
             </div>
           </div>
 
-          {/* Work runs */}
-          <div className="px-3 pt-3 pb-1">
-            <div className="px-1 mb-1.5 text-[10px] font-bold text-slate-400 tracking-wider">업무 룬</div>
-            <div className="space-y-0.5">
-              {KOGAS_WORK_RUNS.map(r=>(
-                <div key={r.id} onClick={()=>{setActiveWorkRun(r.id);newChat();}} className={`flex items-center space-x-2 px-2.5 py-2 rounded-xl cursor-pointer text-xs transition-all ${activeWorkRun===r.id?'bg-sky-100 text-sky-800 font-bold':'hover:bg-slate-50 text-slate-700'}`}>
-                  <r.icon size={13} className={activeWorkRun===r.id?'text-sky-700':'text-slate-400'}/>
-                  <span>{r.label}</span>
-                </div>
-              ))}
+          {/* Tab-specific section: modes / agents / security */}
+          {tab==='일반' && (
+            <div className="px-3 pt-3 pb-1">
+              <div className="px-1 mb-1.5 text-[10px] font-bold text-slate-400 tracking-wider">업무 모드</div>
+              <div className="space-y-0.5">
+                {KOGAS_WORK_MODES.map(r=>{
+                  const isActive=!activeAgent&&activeMode===r.id;
+                  return (
+                    <div key={r.id} onClick={()=>{setActiveMode(r.id);setActiveAgent(null);newChat();}} className={`flex items-center space-x-2 px-2.5 py-2 rounded-xl cursor-pointer text-xs transition-all ${isActive?'bg-sky-100 text-sky-800 font-bold':'hover:bg-slate-50 text-slate-700'}`}>
+                      <r.icon size={13} className={isActive?'text-sky-700':'text-slate-400'}/>
+                      <span>{r.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
+          {tab==='에이전트' && (
+            <div className="px-3 pt-3 pb-1">
+              <div className="px-1 mb-1.5 text-[10px] font-bold text-slate-400 tracking-wider flex items-center justify-between">
+                <span>전문 에이전트</span>
+                <span className="text-[9px] text-slate-400 font-normal">{KOGAS_AGENTS.length}개</span>
+              </div>
+              <div className="space-y-1">
+                {KOGAS_AGENTS.map(a=>{
+                  const isActive=activeAgent?.id===a.id;
+                  return (
+                    <div key={a.id} onClick={()=>{setActiveAgent(a);newChat();toast(`'${a.label}' 으로 전환했습니다`);}} className={`flex items-center space-x-2 px-2 py-2 rounded-xl cursor-pointer text-xs transition-all ${isActive?'bg-sky-50 ring-1 ring-sky-200':'hover:bg-slate-50'}`}>
+                      <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${a.color} flex items-center justify-center text-white shrink-0 shadow-sm`}><a.icon size={12}/></div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center space-x-1">
+                          <span className={`font-bold truncate ${isActive?'text-sky-800':'text-slate-800'}`}>{a.label}</span>
+                          {a.badge && <span className="bg-amber-100 text-amber-700 text-[8px] font-bold px-1 py-0.5 rounded shrink-0">{a.badge}</span>}
+                        </div>
+                        <div className="text-[9px] text-slate-500 line-clamp-1 mt-0.5">{a.desc.split('.')[0]}.</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {tab==='보안' && (
+            <div className="px-3 pt-3 pb-1">
+              <div className="px-1 mb-1.5 text-[10px] font-bold text-slate-400 tracking-wider">보안 정책</div>
+              <div className="space-y-1.5">
+                <div className="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-2.5">
+                  <div className="flex items-center space-x-1.5 mb-1"><Shield size={11} className="text-emerald-600"/><span className="text-[11px] font-bold text-emerald-800">내부망 격리 활성</span></div>
+                  <div className="text-[10px] text-emerald-700 leading-relaxed">모든 대화 데이터는 사내 인프라에서만 처리됩니다.</div>
+                </div>
+                <div className="bg-amber-50 ring-1 ring-amber-200 rounded-xl p-2.5">
+                  <div className="flex items-center space-x-1.5 mb-1"><Lock size={11} className="text-amber-700"/><span className="text-[11px] font-bold text-amber-800">개인정보 자동 마스킹</span></div>
+                  <div className="text-[10px] text-amber-700 leading-relaxed">주민번호·연락처 등은 답변에서 자동 마스킹됩니다.</div>
+                </div>
+                <div className="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-2.5">
+                  <div className="flex items-center space-x-1.5 mb-1"><Eye size={11} className="text-slate-600"/><span className="text-[11px] font-bold text-slate-800">감사 로그 저장</span></div>
+                  <div className="text-[10px] text-slate-600 leading-relaxed">모든 질의·응답은 730일 보존 후 자동 폐기됩니다.</div>
+                </div>
+                <button onClick={()=>toast('가드레일 정책 상세 (관리자)','info')} className="w-full mt-1 text-[10px] text-sky-700 hover:underline py-1 font-medium">가드레일 정책 전체 보기 →</button>
+              </div>
+            </div>
+          )}
 
           {/* Recent */}
           <div className="px-3 pt-3 pb-1 flex-1 overflow-y-auto custom-scrollbar">
@@ -5431,13 +5561,13 @@ const KogasTechAIChat = ({onSwitchToAdmin,onOpenMypage}) => {
                 <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center text-sky-500 mb-5 shadow-lg shadow-sky-100/80 ring-8 ring-sky-50">
                   <Sparkles size={28}/>
                 </div>
-                <h2 className="text-[28px] font-extrabold text-slate-900 mb-2">안녕하세요, 사용자님!</h2>
-                <p className="text-sm text-slate-500 mb-9">{currentRun.desc}</p>
+                <h2 className="text-[28px] font-extrabold text-slate-900 mb-2">{activeAgent?activeAgent.label+'에 오신 것을 환영합니다':'안녕하세요, 사용자님!'}</h2>
+                <p className="text-sm text-slate-500 mb-9 max-w-xl text-center">{headerDesc}</p>
                 <div className="grid grid-cols-2 gap-3.5 w-full max-w-3xl">
-                  {KOGAS_CAPABILITIES.map((c,i)=>(
+                  {capabilities.map((c,i)=>(
                     <div key={i} onClick={()=>generate(c.q)} className="bg-white rounded-2xl ring-1 ring-slate-200 p-5 hover:ring-sky-300 hover:shadow-md cursor-pointer transition-all group">
                       <div className="flex items-start space-x-3">
-                        <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${c.iconBg} flex items-center justify-center ${c.iconColor} shrink-0 shadow-md group-hover:scale-105 transition-transform`}><c.icon size={18}/></div>
+                        <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${c.iconBg} flex items-center justify-center text-white shrink-0 shadow-md group-hover:scale-105 transition-transform`}><c.icon size={18}/></div>
                         <div className="min-w-0 flex-1">
                           <div className="font-bold text-[14px] text-slate-900 mb-1.5">{c.t}</div>
                           <div className="text-[12px] text-slate-500 leading-relaxed line-clamp-2">{c.q}</div>
